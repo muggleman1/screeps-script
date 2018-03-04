@@ -55,11 +55,11 @@ module.exports.loop = function() {
             case 'repairMan':
                 RepairTime.run(creep); //TODO: fix
                 break;
+            //TODO: other creeps that attack
         }
-        //TODO: other creeps that attack
     }
 
-    const groupedCreeps=_.groupBy(Game.creeps,'memory.home');
+    const groupedCreeps=_.groupBy(Memory.creeps,'memory.home');
 
     let isWorking=false;
     //Flag controllers

@@ -75,6 +75,15 @@ module.exports = {
         return refillBuildings(creep,RESOURCE_ENERGY);
     },
 
+    /**
+     * Summary. Causes the creep to move towards and deposit minerals into the building specified in targetId
+     *
+     * @type {function}
+     *
+     * @param {Creep} creep Acts on this creep object
+     *
+     * @returns {boolean} Whether the function completed
+     */
     refillMineralBuildings: function(creep){
         //TODO: use an ID for this?
         let resource=null;
@@ -209,6 +218,16 @@ module.exports = {
     }
 };
 
+/**
+ * Summary. Causes the creep to move towards and deposit energy into the building specified in targetId
+ *
+ * @type {function}
+ *
+ * @param {Creep} creep Acts on this creep object
+ * @param {String} resource Resource type that the creep should be depositing
+ *
+ * @returns {boolean} Whether the function completed
+ */
 function refillBuildings(creep,resource){
     if(creep.memory.targetId!==null){
         const target=Game.getObjectById(creep.memory.targetId);
@@ -224,9 +243,6 @@ function refillBuildings(creep,resource){
             }
             return true;
         }
-        else
-            return false;
     }
-    else
-        return false;
+    return false;
 }

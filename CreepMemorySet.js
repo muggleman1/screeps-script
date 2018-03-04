@@ -131,6 +131,13 @@ module.exports = {
             return false;
     },
 
+    /**
+     * Summary. Sets the creep's enemyId to the first enemy creep in the room
+     *
+     * @param {Creep} creep Acts on this creep object
+     * @param {Creep[]} enemyCreeps The list of all enemy creeps in the room
+     * @returns {boolean} True if successful (list length > 0)
+     */
     setEnemy: function(creep,enemyCreeps){
         if(enemyCreeps.length){
             creep.memory.enemyId=enemyCreeps[0].id;
