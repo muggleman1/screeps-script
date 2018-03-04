@@ -51,29 +51,15 @@ module.exports = {
     },
 
     /**
-     * Summary. Returns a spawn in the room with the most energy
+     * Summary. Returns a list of available spawns from the given list
      *
-     * @param buildings List of buildings to select from
-     * @returns {StructureSpawn|null}
+     * @param spawns List of spawns to select from
+     * @returns {StructureSpawn[]}
      */
     chooseSpawns: function(spawns) {
-        let position=-1;
-        let maxE=-1;
-        for(var i=0;i<spawns.length;i++){
-            var currSpawn=spawns[i];
-            if(currSpawn.energy>maxE&&!currSpawn.spawning){
-                maxE=currSpawn.energy;
-                position=i;
-            }
-        }
-        if(position===-1){
-            return null;
-        }
-        else{
-            return spawns.filter(function(spawn){
-                return !spawn.spawning
-            });
-        }
+        return spawns.filter(function(spawn){
+            return !spawn.spawning
+        });
     },
 
     selectCreepName: function(prefix){

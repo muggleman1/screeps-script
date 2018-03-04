@@ -47,10 +47,13 @@ module.exports = {
             let numDeliveryBoys = 0;
             let numDistributors = 0;
             const roomEnergyAvailable=room.energyCapacityAvailable;
+            const partitionedCreeps=_.groupBy(roomCreeps,(creep)=>creep.memory.role); //TODO: this doesnt work
+            
             //Set number of each creep
             if(roomEnergyAvailable<550){ //RCL 1
                 numHarvesters = 2;
-                numUpgraders = 99; //unreachable, basically just spawn unlimited upgraders
+                numUpgraders = 1;
+                numBuilders = 99; //unreachable, just spawn as many as possible
             }
             else if (roomEnergyAvailable<800){ //RCL 2
                 numHarvesters = 3;
@@ -102,8 +105,6 @@ module.exports = {
                 numBuilders=2;
                 numDistributors=1;
             }
-
-            const partitionedCreeps=_.groupBy(roomCreeps,'memory.role');
 
             if(Game.time%5===0){
                 let enemyCreeps=roomGetters.getEnemyCreeps(room);

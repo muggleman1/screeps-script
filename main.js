@@ -60,6 +60,7 @@ module.exports.loop = function() {
     }
 
     const groupedCreeps=_.groupBy(Memory.creeps,'memory.home');
+    //TODO: there is no way this works
 
     let isWorking=false;
     //Flag controllers
