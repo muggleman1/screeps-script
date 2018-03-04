@@ -59,8 +59,7 @@ module.exports.loop = function() {
         }
     }
 
-    const groupedCreeps=_.groupBy(Memory.creeps,'memory.home');
-    //TODO: there is no way this works
+    const groupedCreeps=_.groupBy(Game.creeps,(creep)=>creep.memory.home);
 
     let isWorking=false;
     //Flag controllers
@@ -79,6 +78,10 @@ module.exports.loop = function() {
             }
             else if (room.memory.level === -1) {
                 //TODO: other rooms which creeps may venture into (ex. enemy bases or portal rooms?)
+            }
+            else{
+                //TODO: set memory level to be appropriate
+                room.memory.level=1;
             }
 
             roomGetters.resetTempMemory(room);

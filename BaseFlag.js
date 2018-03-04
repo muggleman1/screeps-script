@@ -47,13 +47,13 @@ module.exports = {
             let numDeliveryBoys = 0;
             let numDistributors = 0;
             const roomEnergyAvailable=room.energyCapacityAvailable;
-            const partitionedCreeps=_.groupBy(roomCreeps,(creep)=>creep.memory.role); //TODO: this doesnt work
+            const partitionedCreeps=_.groupBy(roomCreeps,(creep)=>creep.memory.role);
             
             //Set number of each creep
             if(roomEnergyAvailable<550){ //RCL 1
                 numHarvesters = 2;
                 numUpgraders = 1;
-                numBuilders = 99; //unreachable, just spawn as many as possible
+                numBuilders = 10;
             }
             else if (roomEnergyAvailable<800){ //RCL 2
                 numHarvesters = 3;
