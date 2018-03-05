@@ -67,7 +67,6 @@ module.exports.loop = function() {
         const room=Game.rooms[roomName];
         //Remove if there is errors that cause the room to not finish execution
         //roomGetters.resetTempMemory(room);
-        //TODO: remove rooms which no longer matter?
         if(room) {
             isWorking=true;
             if (room.memory.level > 0) {
@@ -80,8 +79,15 @@ module.exports.loop = function() {
                 //TODO: other rooms which creeps may venture into (ex. enemy bases or portal rooms?)
             }
             else{
-                //TODO: set memory level to be appropriate
-                room.memory.level=1;
+                if(room.controller) {
+                    if (room.controller.my) {
+                        room.memory.level = room.controller.level;
+                    }
+                    else {
+                        room.memory.level = -1;
+                    }
+                }
+                //TODO: define behavior for rooms with no controller (remove unnecessary rooms?)
             }
 
             roomGetters.resetTempMemory(room);

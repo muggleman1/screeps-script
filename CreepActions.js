@@ -208,7 +208,6 @@ module.exports = {
         }
         let enemy=Game.getObjectById(creep.memory.enemyId);
         if(enemy!==null){
-            //TODO: check body parts?
             if(creep.attackEnemy()===ERR_NOT_IN_RANGE)
                 creep.moveTo(enemy);
             creep.rangedHeal(creep);

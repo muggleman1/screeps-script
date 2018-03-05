@@ -72,6 +72,13 @@ const getSpawns=function(room){
         return idsToObjs(JSON.parse(room.memory.spawns));
 };
 
+const findCenter=function(room){
+    room.memory.centerX=-1;
+    room.memory.centerY=-1;
+    //TODO: quickly and efficiently find an appropriate center for the room (needs to be 13 by 15)
+    
+};
+
 const resetTempMemory=function(room){
     room.memory.buildings=undefined;
     room.memory.myCreeps=undefined;
@@ -97,6 +104,8 @@ module.exports = {
     getEnemyCreeps: getEnemyCreeps,
 
     getSpawns: getSpawns,
+
+    findCenter: findCenter,
 
     resetTempMemory: resetTempMemory,
 

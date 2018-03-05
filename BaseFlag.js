@@ -15,6 +15,11 @@ const DefendTime = require('role.defender');
 
 module.exports = {
     run: function(room,roomCreeps){
+        //Will be used for placing buildings if necessary
+        if(!room.memory.centerX||!room.memory.centerY){
+            roomGetters.findCenter(room);
+        }
+
         roomGetters.setMyCreeps(room,roomCreeps);
         //Room functions that will happen consistently every tick
         const buildings=roomGetters.getBuildings(room);
@@ -38,7 +43,7 @@ module.exports = {
         }
         const controllerLevel = room.controller.level;
 
-        while (availableSpawns&&availableSpawns.length>spawnPos) { //make a while loop?
+        while (availableSpawns&&availableSpawns.length>spawnPos) {
             //TODO: save these in memory in controllerChange?
             let numHarvesters = 0;
             let numUpgraders = 0;
@@ -53,7 +58,7 @@ module.exports = {
             if(roomEnergyAvailable<550){ //RCL 1
                 numHarvesters = 2;
                 numUpgraders = 1;
-                numBuilders = 10;
+                numBuilders = 1;
             }
             else if (roomEnergyAvailable<800){ //RCL 2
                 numHarvesters = 3;
@@ -144,7 +149,7 @@ module.exports = {
                 spawnPos++;
             }
             else{ //What to do if all creeps are at optimal levels
-                if(controllerLevel===2){
+                if(roomEnergyAvailable<800){
                     BuildTime.spawn(availableSpawns[spawnPos],room.energyCapacityAvailable,room);
                     spawnPos++;
                 }
