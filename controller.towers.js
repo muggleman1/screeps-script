@@ -9,7 +9,7 @@ module.exports = {
                 let canDamage=false;
                 for(let creep of hostiles){
                     const body=creep.body;
-                    for(let part of creep){
+                    for(let part of body){
                         if(part===WORK||part===ATTACK||part===RANGED_ATTACK||part===CLAIM) {
                             canDamage = true;
                             break;

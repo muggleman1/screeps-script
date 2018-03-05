@@ -1,4 +1,4 @@
-const BaseFlag=require('BaseFlag');
+const BaseFlag=require('controller.base');
 
 const HarvestTime = require('role.harvester');
 const UpgradeTime = require('role.upgrader');
@@ -93,7 +93,6 @@ module.exports.loop = function() {
             roomGetters.resetTempMemory(room);
         }
     }
-
     if(!isWorking){//Should only be necessary at the very beginning of the script running
         const spawn=Game.spawns.Spawn1;
         spawn.room.memory.level=spawn.room.controller.level;

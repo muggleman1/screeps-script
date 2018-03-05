@@ -1,6 +1,6 @@
-const Tower=require('Tower');
-const BodyPartSelector=require('BodyPartSelector');
-const Util=require('Util');
+const Tower=require('controller.towers');
+const BodyPartSelector=require('utilities.bodyParts');
+const Util=require('utilities');
 const roomGetters=require('utilities.roomMemory');
 
 const HarvestTime = require('role.harvester');
@@ -17,7 +17,7 @@ module.exports = {
     run: function(room,roomCreeps){
         //Will be used for placing buildings if necessary
         if(!room.memory.centerX||!room.memory.centerY){
-            roomGetters.findCenter(room);
+            //roomGetters.findCenter(room); TODO: uncomment this when ready
         }
 
         roomGetters.setMyCreeps(room,roomCreeps);
@@ -41,8 +41,8 @@ module.exports = {
         if(!availableSpawns) {
             availableSpawns=Util.chooseSpawns(roomGetters.getSpawns(room));
         }
-        const controllerLevel = room.controller.level;
 
+        //TODO: is this while loop causing a cpu timeout?
         while (availableSpawns&&availableSpawns.length>spawnPos) {
             //TODO: save these in memory in controllerChange?
             let numHarvesters = 0;

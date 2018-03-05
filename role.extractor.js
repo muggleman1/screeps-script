@@ -1,8 +1,8 @@
-const actions= require('CreepActions');
-const memoryActions=require('CreepMemorySet');
-const BodyPartSelector=require('BodyPartSelector');
+const actions= require('actions.creeps');
+const memoryActions=require('utilities.creeps');
+const BodyPartSelector=require('utilities.bodyParts');
 
-const Util=require('Util');
+const Util=require('utilities');
 const roomGetters=require('utilities.roomMemory');
 
 module.exports = {
