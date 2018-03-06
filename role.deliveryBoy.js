@@ -49,7 +49,7 @@ module.exports = { //TODO: look for resource on the ground
                 let valid=true;
                 if(creep.memory.containerId){
                     const container=Game.getObjectById(creep.memory.containerId);
-                    if(!container||Util.storeSum(container)===0)
+                    if(!container||container.storeSum()===0)
                         valid=false;
                 }
                 if (!valid||creep.memory.containerId === undefined) {

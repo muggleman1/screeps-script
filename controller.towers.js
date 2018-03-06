@@ -1,10 +1,12 @@
 const missingHealthMin=800; //Towers will not heal a structure if it has < this amount of health
 
 module.exports = {
-    act: function(towers,structures){
+    act: function(towers){
         if(towers.length) {
-            let hostiles = towers[0].room.find(FIND_HOSTILE_CREEPS);
+            const hostiles= towers[0].room.getEnemyCreeps();
+            const structures = towers[0].room.getBuildings();
 
+            //Attack hostiles
             if (hostiles.length > 0) {
                 let canDamage=false;
                 for(let creep of hostiles){
@@ -24,6 +26,7 @@ module.exports = {
                     tower.attack(target);
                 }
             }
+            //Repair Buildings
             else {
                 let idealTowers=towers.filter(
                     function(value){
@@ -32,7 +35,7 @@ module.exports = {
                 );
 
                 if(idealTowers.length){
-                    let maximumHealth=500000; //prevents overhealing of walls //TODO: change based on level
+                    let maximumHealth=500000; //prevents overhealing of walls TODO: change based on level
                     let targets = _.filter(structures,
                         (structure1) => structure1.hits <= Math.min(structure1.hitsMax,maximumHealth)-missingHealthMin);
                     if (targets.length) {

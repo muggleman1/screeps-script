@@ -1,5 +1,6 @@
 const Util=require('utilities');
 
+//TODO: add this to creep prototypes
 module.exports = {
     /**
      * Summary. Causes the creep to build the object specified by targetId.

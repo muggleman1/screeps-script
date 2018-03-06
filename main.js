@@ -1,4 +1,5 @@
 require('prototype.room');
+require('prototype.structure');
 
 const BaseController=require('controller.base');
 const FarmController=require('controller.farm');
@@ -27,7 +28,6 @@ module.exports.loop = function() {
         }
 
         //TODO: updated move function
-        //TODO: move this back into the rooms? we partition anyway
         //Activate creep scripts as corresponding to their role
         switch(creep.memory.role){
             case 'miner':
@@ -109,6 +109,7 @@ module.exports.loop = function() {
     }
     if(!isWorking){//Should only be necessary at the very beginning of the script running
         const spawn=Game.spawns.Spawn1;
-        spawn.room.memory.level=spawn.room.controller.level;
+        if(spawn)
+            spawn.room.memory.level=spawn.room.controller.level;
     }
 };

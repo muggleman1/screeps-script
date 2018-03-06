@@ -41,7 +41,7 @@ module.exports = {
                     let valid=true;
                     if(creep.memory.containerId){
                         const container=Game.getObjectById(creep.memory.containerId);
-                        if(!container||Util.storeSum(container)===container.storeCapacity)
+                        if(!container||container.storeSum()===container.storeCapacity)
                             valid=false;
                     }
                     if(!valid||creep.memory.containerId===undefined) {

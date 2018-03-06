@@ -31,7 +31,7 @@ module.exports = {
         //TODO: better distributor respawning (just convert deliveryBoy?)
 
         const towers=_.filter(buildings,(structure)=>(structure.structureType===STRUCTURE_TOWER));
-        Tower.act(towers,buildings);
+        Tower.act(towers);
 
         let spawnPos=0;
         let availableSpawns=Util.chooseSpawns(room.getSpawns());
@@ -123,22 +123,18 @@ module.exports = {
                 if (numHarvesters !== 0 && (!partitionedCreeps['harvester'] ||
                         numHarvesters > partitionedCreeps['harvester'].length)) {
                     HarvestTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
-                    spawnPos++;
                 }
                 else if (numMiners !== 0 && (!partitionedCreeps['miner'] ||
                         numMiners > partitionedCreeps['miner'].length)) {
                     MineTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
-                    spawnPos++;
                 }
                 else if (numDeliveryBoys !== 0 && (!partitionedCreeps['deliveryBoy'] ||
                         numDeliveryBoys > partitionedCreeps['deliveryBoy'].length)) {
                     DeliveryTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
-                    spawnPos++;
                 }
                 else if (numDistributors !== 0 && (!partitionedCreeps['distributor'] ||
                         numDistributors > partitionedCreeps['distributor'].length)) {
                     DistributeTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
-                    spawnPos++;
                 }
                 else if (numUpgraders !== 0 && (!partitionedCreeps['upgrader'] ||
                         numUpgraders > partitionedCreeps['upgrader'].length)) {
@@ -147,17 +143,15 @@ module.exports = {
                 else if (numBuilders !== 0 && (!partitionedCreeps['builder'] ||
                         numBuilders > partitionedCreeps['builder'].length)) {
                     BuildTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
-                    spawnPos++;
                 }
                 else { //What to do if all creeps are at optimal levels
                     if (roomEnergyAvailable < 800) {
                         BuildTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
-                        spawnPos++;
                     }
                     else
                         break;
                 }
-                break; //TODO: figure out while this while loop does not terminate
+                spawnPos++;
             }
         }
     }

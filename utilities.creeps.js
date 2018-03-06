@@ -1,5 +1,3 @@
-const Util=require('utilities');
-
 module.exports = {
     /**
      * Summary. Sets the targetId of the creep to the StructureStorage in the room if possible
@@ -10,7 +8,7 @@ module.exports = {
      */
     setTargetStorage: function(creep,buildings){
         const storages=_.filter(buildings, (building) => building.structureType === STRUCTURE_STORAGE
-            && Util.storeSum(building)<building.storeCapacity);
+            && building.storeSum()<building.storeCapacity);
         if (storages.length){
             creep.memory.targetId=storages[0].id;
             return true;

@@ -35,20 +35,6 @@ module.exports = {
     },
 
     /**
-     * Summary. Sums the value of the building's store
-     *
-     * @param building
-     * @returns {number} Sums the value of the building's store. -1 if the building has no store
-     */
-    storeSum: function(building){
-        if(building.store){
-            return _.sum(building.store);
-        }
-        else
-            return -1;
-    },
-
-    /**
      * Summary. Returns a list of available spawns from the given list
      *
      * @param spawns List of spawns to select from
@@ -66,7 +52,7 @@ module.exports = {
      * @param {String} prefix Prefix to use for name generation, generally is the creep's role
      * @returns {String} Generated Name
      */
-    selectCreepName: function(prefix){ //TODO: add this to a creep prototype?
+    selectCreepName: function(prefix){
         const letter="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         let name;
         while(true){
@@ -80,9 +66,9 @@ module.exports = {
     },
 
     /**
-     * Summary. Generates an array of ids from an array of Structures
+     * Summary. Generates an array of ids from an array of objects
      *
-     * @param {Structure[]} objs Array of structures to get IDs from
+     * @param {*[]} objs Array of objects to get IDs from
      * @returns {String[]} Array of IDs derive from objs
      */
     objsToIds: function(objs){
@@ -94,10 +80,10 @@ module.exports = {
     },
 
     /**
-     * Summary. Generates an array of Structures from an array of IDs
+     * Summary. Generates an array of objects from an array of IDs
      *
-     * @param {String[]} ids Array of IDs to get Structures from
-     * @returns {Structure[]} Array of Structures derive from ids
+     * @param {*[]} ids Array of IDs to get objects from
+     * @returns {Structure[]} Array of objects derive from ids
      */
     idsToObjs: function(ids){
         let objs = [];

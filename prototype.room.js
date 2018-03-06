@@ -1,19 +1,23 @@
 const util=require('utilities');
 
+/**
+ * Summary. Places buildings based on the appropriate RCL
+ */
 Room.prototype.controllerChange=function(){
     const currLevel=this.memory.level;
     const controllerLevel=this.controller.level;
     const centerX=this.memory.centerX;
     const centerY=this.memory.centerY;
     if(centerX && centerY && currLevel<controllerLevel){
-        switch(currLevel){ //TODO: test this
+        switch(currLevel){
             case 1:
                 this.place(STRUCTURE_EXTENSION,5);
                 break;
             case 2:
                 this.place(STRUCTURE_EXTENSION,5);
                 this.place(STRUCTURE_TOWER);
-                //TODO: place walls around controller and ends. and ramparts
+                this.place(STRUCTURE_ROAD,999999);
+                //TODO: place walls and ramparts
                 break;
             case 3:
                 this.place(STRUCTURE_EXTENSION,10);
@@ -26,7 +30,7 @@ Room.prototype.controllerChange=function(){
                 break;
             case 5:
                 this.place(STRUCTURE_EXTENSION,10);
-                //TODO: extractor
+                this.find(FIND_MINERALS)[0].pos.createConstructionSite(STRUCTURE_EXTRACTOR);
                 this.place(STRUCTURE_LAB,3);
                 //TODO: add 1 link
                 break;
@@ -53,6 +57,12 @@ Room.prototype.controllerChange=function(){
     }
 };
 
+/**
+ * Summary. Places buildings of the indicated number based on the predefined base layout
+ *
+ * @param {String} type The type of structure to place
+ * @param number Number of Structures to place, default 1
+ */
 Room.prototype.place=function(type,number=1){
     const centerX=this.memory.centerX;
     const centerY=this.memory.centerY;
@@ -80,7 +90,8 @@ Room.prototype.place=function(type,number=1){
                      4, 4, 4,-1,-2,
                     -3,-3,-1,-2,-2,
                     -3,-4,-4,-4,-4,
-                    -5,-5,-5,-5,-4];
+                    -5,-5,-5,-5,-4
+                ];
                 yVals=[
                     -2,-2,-3,-3,-4,
                     -5,-5,-3,-4,-4,
@@ -93,7 +104,8 @@ Room.prototype.place=function(type,number=1){
                      7, 6, 5, 5, 4,
                      4, 5, 6, 6, 7,
                      7, 7, 6, 5, 1,
-                     1, 0,-1,-2,-2];
+                     1, 0,-1,-2,-2
+                ];
                 break;
             case STRUCTURE_POWER_SPAWN:
                 xVals=[3];
@@ -127,6 +139,38 @@ Room.prototype.place=function(type,number=1){
                 xVals=[4];
                 yVals=[2];
                 break;
+            case STRUCTURE_ROAD:
+                xVals=[
+                     0, 1, 1, 1, 0,
+                    -1,-1,-1, 0, 0,
+                    -1, 1,-2, 2,-3,
+                     3, 0, 0,-1, 1,
+                    -2, 2,-3, 3,-3,
+                    -4,-4, 3, 4, 4,
+                     5, 5,-2,-2,-3,
+                    -3,-4,-4,-5,-5,
+                     2, 2, 3, 3, 4,
+                     4, 5, 5,-2,-2,
+                    -3,-3,-4,-4,-5,
+                    -5, 2, 2, 3, 3,
+                     4, 4, 5, 5
+                ];
+                yVals=[
+                    -1,-1, 0, 1, 1,
+                     1, 0,-1,-2,-3,
+                    -4,-4,-5,-5,-6,
+                    -6, 2, 3, 4, 4,
+                     5, 5, 6, 6, 0,
+                     0,-1, 0, 0,-1,
+                     0, 1,-1,-2,-2,
+                    -3,-3,-4,-4,-5,
+                    -1,-2,-2,-3,-3,
+                    -4,-4,-5, 1, 2,
+                     2, 3, 3, 4, 4,
+                     5, 1, 2, 2, 3,
+                     3, 4, 4, 5
+                ];
+                break;
         }
         let validLocations=[];
         for(let i=0;i<xVals.length;i++) {
@@ -151,64 +195,10 @@ Room.prototype.place=function(type,number=1){
     }
 };
 
-Room.prototype.getSources=function(){
-    if(this.memory.sources===undefined){
-        let sources=this.find(FIND_SOURCES);
-        this.memory.sources=JSON.stringify(util.objsToIds(sources));
-        return sources;
-    }
-    else {
-        return util.idsToObjs(JSON.parse(this.memory.sources));
-    }
-};
-
-Room.prototype.getBuildings=function(){
-    if(this.memory.buildings===undefined){
-        let buildings=this.find(FIND_STRUCTURES);
-        this.memory.buildings=JSON.stringify(util.objsToIds(buildings));
-        return buildings;
-    }
-    else {
-        return util.idsToObjs(JSON.parse(this.memory.buildings));
-    }
-};
-
-Room.prototype.getMyCreeps=function(){
-    if(this.memory.myCreeps===undefined){
-        let myCreeps=this.find(FIND_MY_CREEPS);
-        this.memory.myCreeps=JSON.stringify(util.objsToIds(myCreeps));
-        return myCreeps;
-    }
-    else {
-        return util.idsToObjs(JSON.parse(this.memory.myCreeps));
-    }
-};
-
-Room.prototype.setMyCreeps=function(myCreeps) {
-    this.memory.myCreeps = JSON.stringify(util.objsToIds(myCreeps));
-};
-
-Room.prototype.getEnemyCreeps=function(){
-    if(this.memory.enemyCreeps===undefined){
-        let enemyCreeps=this.find(FIND_HOSTILE_CREEPS);
-        this.memory.enemyCreeps=JSON.stringify(util.objsToIds(enemyCreeps));
-        return enemyCreeps;
-    }
-    else {
-        return util.idsToObjs(JSON.parse(this.memory.enemyCreeps));
-    }
-};
-
-Room.prototype.getSpawns=function(){
-    if(this.memory.spawns===undefined){
-        let spawns=_.filter(this.getBuildings(this),(building)=>building.structureType===STRUCTURE_SPAWN);
-        this.memory.spawns=JSON.stringify(util.objsToIds(spawns));
-        return spawns;
-    }
-    else
-        return util.idsToObjs(JSON.parse(this.memory.spawns));
-};
-
+/**
+ * Summary. Calculates the best possible center for the base given the layout of the room and the predefined base
+ *          formation and updates the room's memory
+ */
 Room.prototype.findCenter=function(){
     this.memory.centerX=-1;
     this.memory.centerY=-1;
@@ -264,6 +254,97 @@ Room.prototype.findCenter=function(){
     }
 };
 
+/**
+ * Summary. Returns all sources in the room. Parses from memory or calls Room.find and sets memory
+ *
+ * @returns {Source[]} All sources in the room
+ */
+Room.prototype.getSources=function(){
+    if(this.memory.sources===undefined){
+        let sources=this.find(FIND_SOURCES);
+        this.memory.sources=JSON.stringify(util.objsToIds(sources));
+        return sources;
+    }
+    else {
+        return util.idsToObjs(JSON.parse(this.memory.sources));
+    }
+};
+
+/**
+ * Summary. Returns all structures in the room. Parses from memory or calls Room.find and sets memory
+ *
+ * @returns {Structure[]} All Structure objects in the room
+ */
+Room.prototype.getBuildings=function(){
+    if(this.memory.buildings===undefined){
+        let buildings=this.find(FIND_STRUCTURES);
+        this.memory.buildings=JSON.stringify(util.objsToIds(buildings));
+        return buildings;
+    }
+    else {
+        return util.idsToObjs(JSON.parse(this.memory.buildings));
+    }
+};
+
+/**
+ * Summary. Returns all friendly creeps in the room. Parses from memory or calls Room.find and sets memory
+ *
+ * @returns {Creep[]} All friendly Creep objects in the room
+ */
+Room.prototype.getMyCreeps=function(){
+    if(this.memory.myCreeps===undefined){
+        let myCreeps=this.find(FIND_MY_CREEPS);
+        this.memory.myCreeps=JSON.stringify(util.objsToIds(myCreeps));
+        return myCreeps;
+    }
+    else {
+        return util.idsToObjs(JSON.parse(this.memory.myCreeps));
+    }
+};
+
+/**
+ * Summary. Sets the Room.memory.myCreeps to represent the passed myCreeps
+ *
+ * @param {Creep[]} myCreeps All friendly creeps in the room
+ */
+Room.prototype.setMyCreeps=function(myCreeps) {
+    this.memory.myCreeps = JSON.stringify(util.objsToIds(myCreeps));
+};
+
+/**
+ * Summary. Returns all enemy creeps in the room. Parses from memory or calls Room.find and sets memory
+ *
+ * @returns {Creep[]} All enemy Creep objects in the room
+ */
+Room.prototype.getEnemyCreeps=function(){
+    if(this.memory.enemyCreeps===undefined){
+        let enemyCreeps=this.find(FIND_HOSTILE_CREEPS);
+        this.memory.enemyCreeps=JSON.stringify(util.objsToIds(enemyCreeps));
+        return enemyCreeps;
+    }
+    else {
+        return util.idsToObjs(JSON.parse(this.memory.enemyCreeps));
+    }
+};
+
+/**
+ * Summary. Returns all spawns in the room. Parses from memory or calls Room.find and sets memory
+ *
+ * @returns {StructureSpawn[]} All spawns in the room
+ */
+Room.prototype.getSpawns=function(){
+    if(this.memory.spawns===undefined){
+        let spawns=_.filter(this.getBuildings(),(building)=>building.structureType===STRUCTURE_SPAWN);
+        this.memory.spawns=JSON.stringify(util.objsToIds(spawns));
+        return spawns;
+    }
+    else
+        return util.idsToObjs(JSON.parse(this.memory.spawns));
+};
+
+/**
+ * Summary. Clears temporary memory for the room
+ */
 Room.prototype.resetTempMemory=function(){
     this.memory.buildings=undefined;
     this.memory.myCreeps=undefined;
@@ -271,6 +352,9 @@ Room.prototype.resetTempMemory=function(){
     this.memory.spawns=undefined;
 };
 
+/**
+ * Summary. Clears temporary memory for the room
+ */
 Room.prototype.resetAllMemory=function() {
     for (let i in this.memory) {
         this.memory[i] = undefined;
