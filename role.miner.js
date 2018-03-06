@@ -3,7 +3,6 @@ const memoryActions=require('utilities.creeps');
 const BodyPartSelector=require('utilities.bodyParts');
 
 const Util=require('utilities');
-const roomGetters=require('utilities.roomMemory');
 
 module.exports = {
     run: function(creep){
@@ -15,8 +14,8 @@ module.exports = {
             case STATE_PATHING:{
                 var valid=true;
                 if(creep.memory.sourceId===undefined){
-                    const roomCreeps=roomGetters.getMyCreeps(creep.room);
-                    const sources=roomGetters.getSources(creep.room);
+                    const roomCreeps=creep.room.getMyCreeps();
+                    const sources=creep.room.getSources();
                     valid=memoryActions.setSource(creep,roomCreeps,sources,'miner');
                 }
                 if(valid) {
@@ -46,7 +45,7 @@ module.exports = {
                             valid=false;
                     }
                     if(!valid||creep.memory.containerId===undefined) {
-                        const buildings=roomGetters.getBuildings(creep.room);
+                        const buildings=creep.room.getBuildings();
                         const containers = _.filter(buildings, (building) => building.structureType === STRUCTURE_CONTAINER);
                         const sourcePos = Game.getObjectById(creep.memory.sourceId).pos;
                         for(var i=0;i<containers.length;i++) {

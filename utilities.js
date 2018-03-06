@@ -1,5 +1,3 @@
-const roomGetters=require('utilities.roomMemory');
-
 /**
  * Summary. Returns the distance between pos1 and pos2
  *
@@ -62,7 +60,13 @@ module.exports = {
         });
     },
 
-    selectCreepName: function(prefix){
+    /**
+     * Summary. Generates a new creep name by adding to prefix
+     *
+     * @param {String} prefix Prefix to use for name generation, generally is the creep's role
+     * @returns {String} Generated Name
+     */
+    selectCreepName: function(prefix){ //TODO: add this to a creep prototype?
         const letter="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         let name;
         while(true){
@@ -73,5 +77,33 @@ module.exports = {
             if(!Game.creeps[name])
                 return name;
         }
+    },
+
+    /**
+     * Summary. Generates an array of ids from an array of Structures
+     *
+     * @param {Structure[]} objs Array of structures to get IDs from
+     * @returns {String[]} Array of IDs derive from objs
+     */
+    objsToIds: function(objs){
+        let ids=[];
+        for(let i in objs){
+            ids.push(objs[i].id);
+        }
+        return ids;
+    },
+
+    /**
+     * Summary. Generates an array of Structures from an array of IDs
+     *
+     * @param {String[]} ids Array of IDs to get Structures from
+     * @returns {Structure[]} Array of Structures derive from ids
+     */
+    idsToObjs: function(ids){
+        let objs = [];
+        for(let i in ids){
+            objs.push(Game.getObjectById(ids[i]));
+        }
+        return objs;
     }
 };

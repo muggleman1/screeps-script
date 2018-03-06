@@ -3,7 +3,6 @@ const memoryActions=require('utilities.creeps');
 const BodyPartSelector=require('utilities.bodyParts');
 
 const Util=require('utilities');
-const roomGetters=require('utilities.roomMemory');
 
 module.exports = {
     run: function(creep) {
@@ -13,7 +12,7 @@ module.exports = {
         switch(state){
             case STATE_ATTACKING:{
                 if(creep.memory.enemyId===undefined||Game.getObjectById(creep.memory.enemyId)===null) {
-                    const enemyCreeps=roomGetters.getEnemyCreeps(creep.room);
+                    const enemyCreeps=creep.room.getEnemyCreeps();
                     memoryActions.setEnemy(creep, enemyCreeps);
                 }
                 actions.attackEnemy(creep);

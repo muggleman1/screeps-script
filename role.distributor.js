@@ -3,7 +3,6 @@ const memoryActions=require('utilities.creeps');
 const BodyPartSelector=require('utilities.bodyParts');
 
 const Util=require('utilities');
-const roomGetters=require('utilities.roomMemory');
 
 module.exports = {
     run: function(creep){
@@ -15,7 +14,7 @@ module.exports = {
             case STATE_PICKING_UP:{
                 let valid=true;
                 if (creep.memory.storageId === undefined) {
-                    const buildings=roomGetters.getBuildings(creep.room);
+                    const buildings=creep.room.getBuildings();
                     const storages = _.filter(buildings,(building) => building.structureType===STRUCTURE_STORAGE);
                     if(storages.length&&storages[0].store[RESOURCE_ENERGY]>0){
                         creep.memory.storageId=storages[0].id;
@@ -60,7 +59,7 @@ module.exports = {
             case STATE_DISTRIBUTING:{
                 var hasTarget=true;
                 if(creep.memory.targetId===undefined) {
-                    const buildings=roomGetters.getBuildings(creep.room);
+                    const buildings=creep.room.getBuildings();
                     hasTarget=memoryActions.setTargetEnergyBuilding(creep,buildings);
                 }
 

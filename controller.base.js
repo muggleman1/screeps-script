@@ -1,7 +1,6 @@
 const Tower=require('controller.towers');
 const BodyPartSelector=require('utilities.bodyParts');
 const Util=require('utilities');
-const roomGetters=require('utilities.roomMemory');
 
 const HarvestTime = require('role.harvester');
 const UpgradeTime = require('role.upgrader');
@@ -13,11 +12,12 @@ const DistributeTime = require('role.distributor');
 const ExtractTime = require('role.extractor');
 const DefendTime = require('role.defender');
 
+//TODO: add containers next to sources!
 module.exports = {
     run: function(room,roomCreeps){
         //Will be used for placing buildings if necessary
         if(!room.memory.centerX||!room.memory.centerY){
-            roomGetters.findCenter(room);
+            room.findCenter();
         }
 
         const controllerLevel=room.controller.level;
@@ -25,16 +25,16 @@ module.exports = {
             room.controllerChange();
         }
 
-        roomGetters.setMyCreeps(room,roomCreeps);
+        room.setMyCreeps(roomCreeps);
         //Room functions that will happen consistently every tick
-        const buildings=roomGetters.getBuildings(room);
+        const buildings=room.getBuildings();
         //TODO: better distributor respawning (just convert deliveryBoy?)
 
         const towers=_.filter(buildings,(structure)=>(structure.structureType===STRUCTURE_TOWER));
         Tower.act(towers,buildings);
 
         let spawnPos=0;
-        let availableSpawns=Util.chooseSpawns(roomGetters.getSpawns(room));
+        let availableSpawns=Util.chooseSpawns(room.getSpawns());
         //Respawn creeps as necessary
         if (availableSpawns.length) {
             //Periodically check if there are no creeps. If so, spawn a harvester
@@ -45,7 +45,7 @@ module.exports = {
                 }
             }
             if(Game.time%5===0 && spawnPos<availableSpawns.length){
-                let enemyCreeps=roomGetters.getEnemyCreeps(room);
+                let enemyCreeps=room.getEnemyCreeps();
                 if(enemyCreeps.length){
                     DefendTime.spawn(availableSpawns[spawnPos],room.energyCapacityAvailable,room);
                     spawnPos++;
@@ -79,7 +79,7 @@ module.exports = {
                 numBuilders = 4;
             }
             else if (roomEnergyAvailable<1800){ //RCL 4 //TODO: colony dies so fix that shit
-                const sources=roomGetters.getSources(room);
+                const sources=room.getSources();
                 numMiners=sources.length;
                 numDeliveryBoys=numMiners*1.5;
                 numUpgraders=1;
@@ -87,7 +87,7 @@ module.exports = {
                 numDistributors=1; //The storage should be constructed FIRST
             }
             else if (roomEnergyAvailable<2300){ //RCL 5
-                const sources=roomGetters.getSources(room);
+                const sources=room.getSources();
                 numMiners=sources.length;
                 numDeliveryBoys=numMiners*1.5;
                 numUpgraders=1;
@@ -95,7 +95,7 @@ module.exports = {
                 numDistributors=1;
             }
             else if (roomEnergyAvailable<5600){ //RCL 6
-                const sources=roomGetters.getSources(room);
+                const sources=room.getSources();
                 numMiners=sources.length;
                 numDeliveryBoys=numMiners*1.5;
                 numUpgraders=1;
@@ -103,7 +103,7 @@ module.exports = {
                 numDistributors=1;
             }
             else if (roomEnergyAvailable<12900){ //RCL 7
-                const sources=roomGetters.getSources(room);
+                const sources=room.getSources();
                 numMiners=sources.length;
                 numDeliveryBoys=numMiners*1.5;
                 numUpgraders=1;
@@ -111,7 +111,7 @@ module.exports = {
                 numDistributors=1;
             }
             else { //RCL 8
-                const sources=roomGetters.getSources(room);
+                const sources=room.getSources();
                 numMiners=sources.length;
                 numDeliveryBoys=numMiners*1.5;
                 numUpgraders=1;
@@ -157,6 +157,7 @@ module.exports = {
                     else
                         break;
                 }
+                break; //TODO: figure out while this while loop does not terminate
             }
         }
     }

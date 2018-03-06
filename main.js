@@ -14,8 +14,6 @@ const DistributeTime = require('role.distributor');
 const ExtractTime = require('role.extractor');
 const DefendTime = require('role.defender');
 
-const roomGetters = require('utilities.roomMemory');
-
 console.log('Script Reloaded');
 
 module.exports.loop = function() {
@@ -73,15 +71,13 @@ module.exports.loop = function() {
     //Flag controllers
     for(let roomName in Memory.rooms){
         const room=Game.rooms[roomName];
-        //Remove if there is errors that cause the room to not finish execution
-        //roomGetters.resetTempMemory(room);
         if(room) {
             isWorking=true;
 
             //If there is a script error, this will stop data from getting corrupted
             if(room.memory.clean===0){
                 console.log('Room '+room.name+' had an error. Resetting memory');
-                roomGetters.resetTempMemory(room);
+                room.resetTempMemory();
             }
             room.memory.clean=0;
 
@@ -107,7 +103,7 @@ module.exports.loop = function() {
                 //TODO: define behavior for rooms with no controller (remove unnecessary rooms?)
             }
 
-            roomGetters.resetTempMemory(room);
+            room.resetTempMemory();
             room.memory.clean=1; //Flag that shows the room controller was cleared correctly
         }
     }

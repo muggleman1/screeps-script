@@ -3,7 +3,6 @@ const memoryActions=require('utilities.creeps');
 const BodyPartSelector=require('utilities.bodyParts');
 
 const Util=require('utilities');
-const roomGetters=require('utilities.roomMemory');
 
 module.exports = { //TODO: look for resource on the ground
     run: function(creep){
@@ -54,7 +53,7 @@ module.exports = { //TODO: look for resource on the ground
                         valid=false;
                 }
                 if (!valid||creep.memory.containerId === undefined) {
-                    const buildings=roomGetters.getBuildings(creep.room);
+                    const buildings=creep.room.getBuildings();
 
                     const containers=_.filter(buildings,(building)=>building.structureType===STRUCTURE_CONTAINER);
                     var max=0;
@@ -90,7 +89,7 @@ module.exports = { //TODO: look for resource on the ground
             case STATE_DISTRIBUTING:{
                 var hasTarget=true;
                 if(creep.memory.targetId===undefined) {
-                    const buildings=roomGetters.getBuildings(creep.room);
+                    const buildings=creep.room.getBuildings();
                     const valid=memoryActions.setTargetStorage(creep,buildings);
                     if(!valid) {
                         hasTarget=memoryActions.setTargetEnergyBuilding(creep, buildings);

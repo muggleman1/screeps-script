@@ -3,7 +3,6 @@ const memoryActions=require('utilities.creeps');
 const BodyPartSelector=require('utilities.bodyParts');
 
 const Util=require('utilities');
-const roomGetters=require('utilities.roomMemory');
 
 module.exports = {
     run: function(creep) {
@@ -28,7 +27,7 @@ module.exports = {
             case STATE_DEPOSITING:{
                 var hasTarget=true;
                 if(creep.memory.targetId===undefined){
-                    const buildings=roomGetters.getBuildings(creep.room);
+                    const buildings=creep.room.getBuildings();
                     hasTarget=memoryActions.setTargetStorage(creep,buildings);
                 }
                 if(hasTarget)
