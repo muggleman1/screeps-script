@@ -77,7 +77,7 @@ const findCenter=function(room){
     room.memory.centerY=-1;
     //TODO: quickly and efficiently find an appropriate center for the room (needs to be 13 by 15)
 
-    //This creates the array as 34 wide and 32 high of all possible centers
+    //Initialize the array of all potential valid centers
     let possibleCenters=[];
     for(let i=0;i<50;i++){
         possibleCenters.push([]);
@@ -86,8 +86,9 @@ const findCenter=function(room){
         }
     }
 
-    for(let i=1;i<49;i++){
-        for(let j=1;j<49;j++){
+    //Test each terrain in the room
+    for(let i=0;i<50;i++){
+        for(let j=0;j<50;j++){
             let loc=room.lookForAt(LOOK_TERRAIN,i,j);
             let found=false;
             if(loc){
@@ -102,10 +103,11 @@ const findCenter=function(room){
                     //iterate through all centers that a wall conflicts with
                     for(let k=0;k<13;k++){
                         for(let m=0;m<15;m++){
-                            const centerX=i+k-7;
+                            const centerX=i+k-6;
                             const centerY=j+m-7;
-                            if(centerX>0&&centerX<50&&centerY>0&&centerY<50)
-                                possibleCenters[centerX][centerX]=0;
+                            if(centerX>0&&centerX<50&&centerY>0&&centerY<50) {
+                                possibleCenters[centerX][centerY] = false;
+                            }
                         }
                     }
                 }
@@ -113,7 +115,16 @@ const findCenter=function(room){
         }
     }
 
-    //TODO: choose of the remaining centers
+    for(let i=0;i<50;i++){
+        for(let j=0;j<50;j++){
+            if(possibleCenters[i][j]===true){
+                room.memory.centerX=i;
+                room.memory.centerY=j;
+                //TODO: push x,y coords to another array and choose the best one
+                return;
+            }
+        }
+    }
 };
 
 const resetTempMemory=function(room){

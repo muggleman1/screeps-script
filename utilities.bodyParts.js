@@ -1,4 +1,10 @@
 module.exports = {
+    /**
+     * Summary. Returns an array of body parts for a Worker
+     *
+     * @param totalEnergy Max energy available for parts
+     * @returns {*[]}
+     */
     workerParts: function(totalEnergy){
         if(totalEnergy>=800){
             return [WORK,WORK,WORK,WORK,
@@ -13,6 +19,12 @@ module.exports = {
         }
     },
 
+    /**
+     * Summary. Returns an array of body parts for a Miner
+     *
+     * @param totalEnergy Max energy available for parts
+     * @returns {*[]}
+     */
     minerParts: function(totalEnergy){
         if(totalEnergy>=650) {
             return [WORK, WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE];
@@ -22,6 +34,12 @@ module.exports = {
         }
     },
 
+    /**
+     * Summary. Returns an array of body parts for a Carrier
+     *
+     * @param totalEnergy Max energy available for parts
+     * @returns {*[]}
+     */
     carrierParts: function(totalEnergy){
         if(totalEnergy>=800){
             return [CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,
@@ -37,6 +55,12 @@ module.exports = {
         }
     },
 
+    /**
+     * Summary. Returns an array of body parts for a Defender
+     *
+     * @param totalEnergy Max energy available for parts
+     * @returns {*[]}
+     */
     defenderParts: function(totalEnergy){
         //TODO: more advanced?
         if(totalEnergy>=750){

@@ -1,4 +1,8 @@
-const BaseFlag=require('controller.base');
+require('prototype.room');
+
+const BaseController=require('controller.base');
+const FarmController=require('controller.farm');
+const TargetController=require('controller.target');
 
 const HarvestTime = require('role.harvester');
 const UpgradeTime = require('role.upgrader');
@@ -55,6 +59,10 @@ module.exports.loop = function() {
             case 'repairMan':
                 RepairTime.run(creep); //TODO: fix
                 break;
+            default: //Reset Creeps role to be the beginning of their name
+                let name=creep.name;
+                creep.memory.role=name.substr(0,name.length-4);
+                break;
             //TODO: other creeps that attack
         }
     }
@@ -69,14 +77,23 @@ module.exports.loop = function() {
         //roomGetters.resetTempMemory(room);
         if(room) {
             isWorking=true;
+
+            //If there is a script error, this will stop data from getting corrupted
+            if(room.memory.clean===0){
+                console.log('Room '+room.name+' had an error. Resetting memory');
+                roomGetters.resetTempMemory(room);
+            }
+            room.memory.clean=0;
+
+            //Run the controller for the correct room level
             if (room.memory.level > 0) {
-                BaseFlag.run(room,groupedCreeps[room.name]);
+                BaseController.run(room,groupedCreeps[room.name]);
             }
             else if (room.memory.level === 0) {
-                //TODO: use for energy farming rooms
+                FarmController.run(room,groupedCreeps[room.name]);
             }
             else if (room.memory.level === -1) {
-                //TODO: other rooms which creeps may venture into (ex. enemy bases or portal rooms?)
+                TargetController.run(room,groupedCreeps[room.name]);
             }
             else{
                 if(room.controller) {
@@ -91,6 +108,7 @@ module.exports.loop = function() {
             }
 
             roomGetters.resetTempMemory(room);
+            room.memory.clean=1; //Flag that shows the room controller was cleared correctly
         }
     }
     if(!isWorking){//Should only be necessary at the very beginning of the script running

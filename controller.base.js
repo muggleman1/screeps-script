@@ -17,7 +17,12 @@ module.exports = {
     run: function(room,roomCreeps){
         //Will be used for placing buildings if necessary
         if(!room.memory.centerX||!room.memory.centerY){
-            //roomGetters.findCenter(room); TODO: uncomment this when ready
+            roomGetters.findCenter(room);
+        }
+
+        const controllerLevel=room.controller.level;
+        if(controllerLevel>room.memory.level){
+            room.controllerChange();
         }
 
         roomGetters.setMyCreeps(room,roomCreeps);
@@ -25,25 +30,28 @@ module.exports = {
         const buildings=roomGetters.getBuildings(room);
         //TODO: better distributor respawning (just convert deliveryBoy?)
 
+        const towers=_.filter(buildings,(structure)=>(structure.structureType===STRUCTURE_TOWER));
+        Tower.act(towers,buildings);
+
         let spawnPos=0;
-        let availableSpawns;
-        //Periodically check if there are no creeps. If so, spawn a harvester
-        if(Game.time%20===0){
-            if(!roomCreeps||roomCreeps.length===0){
-                availableSpawns=Util.chooseSpawns(roomGetters.getSpawns(room));
-                if(availableSpawns.length) {
+        let availableSpawns=Util.chooseSpawns(roomGetters.getSpawns(room));
+        //Respawn creeps as necessary
+        if (availableSpawns.length) {
+            //Periodically check if there are no creeps. If so, spawn a harvester
+            if(Game.time%20===0){
+                if(!roomCreeps||roomCreeps.length===0){
                     HarvestTime.spawn(availableSpawns[spawnPos], room.energyAvailable, room);
                     spawnPos++;
                 }
             }
-        }
-        //Respawn creeps as necessary
-        if(!availableSpawns) {
-            availableSpawns=Util.chooseSpawns(roomGetters.getSpawns(room));
-        }
+            if(Game.time%5===0 && spawnPos<availableSpawns.length){
+                let enemyCreeps=roomGetters.getEnemyCreeps(room);
+                if(enemyCreeps.length){
+                    DefendTime.spawn(availableSpawns[spawnPos],room.energyCapacityAvailable,room);
+                    spawnPos++;
+                }
+            }
 
-        //TODO: is this while loop causing a cpu timeout?
-        while (availableSpawns&&availableSpawns.length>spawnPos) {
             //TODO: save these in memory in controllerChange?
             let numHarvesters = 0;
             let numUpgraders = 0;
@@ -111,54 +119,45 @@ module.exports = {
                 numDistributors=1;
             }
 
-            if(Game.time%5===0){
-                let enemyCreeps=roomGetters.getEnemyCreeps(room);
-                if(enemyCreeps.length){
-                    DefendTime.spawn(availableSpawns[spawnPos],room.energyCapacityAvailable,room);
+            while(spawnPos<availableSpawns.length) {
+                if (numHarvesters !== 0 && (!partitionedCreeps['harvester'] ||
+                        numHarvesters > partitionedCreeps['harvester'].length)) {
+                    HarvestTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
                     spawnPos++;
                 }
-            }
-
-            if (numHarvesters!==0 && (!partitionedCreeps['harvester'] ||
-                    numHarvesters > partitionedCreeps['harvester'].length)) {
-                HarvestTime.spawn(availableSpawns[spawnPos],room.energyCapacityAvailable,room);
-                spawnPos++;
-            }
-            else if (numMiners!==0 && (!partitionedCreeps['miner'] ||
-                    numMiners > partitionedCreeps['miner'].length)) {
-                MineTime.spawn(availableSpawns[spawnPos],room.energyCapacityAvailable,room);
-                spawnPos++;
-            }
-            else if (numDeliveryBoys!==0 && (!partitionedCreeps['deliveryBoy'] ||
-                    numDeliveryBoys > partitionedCreeps['deliveryBoy'].length)) {
-                DeliveryTime.spawn(availableSpawns[spawnPos],room.energyCapacityAvailable,room);
-                spawnPos++;
-            }
-            else if (numDistributors!==0 && (!partitionedCreeps['distributor'] ||
-                    numDistributors > partitionedCreeps['distributor'].length)) {
-                DistributeTime.spawn(availableSpawns[spawnPos],room.energyCapacityAvailable,room);
-                spawnPos++;
-            }
-            else if (numUpgraders!==0 && (!partitionedCreeps['upgrader'] ||
-                    numUpgraders > partitionedCreeps['upgrader'].length)) {
-                UpgradeTime.spawn(availableSpawns[spawnPos],room.energyCapacityAvailable,room);
-            }
-            else if (numBuilders!==0 && (!partitionedCreeps['builder'] ||
-                    numBuilders > partitionedCreeps['builder'].length)) {
-                BuildTime.spawn(availableSpawns[spawnPos],room.energyCapacityAvailable,room);
-                spawnPos++;
-            }
-            else{ //What to do if all creeps are at optimal levels
-                if(roomEnergyAvailable<800){
-                    BuildTime.spawn(availableSpawns[spawnPos],room.energyCapacityAvailable,room);
+                else if (numMiners !== 0 && (!partitionedCreeps['miner'] ||
+                        numMiners > partitionedCreeps['miner'].length)) {
+                    MineTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
                     spawnPos++;
                 }
-                else
-                    break;
+                else if (numDeliveryBoys !== 0 && (!partitionedCreeps['deliveryBoy'] ||
+                        numDeliveryBoys > partitionedCreeps['deliveryBoy'].length)) {
+                    DeliveryTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
+                    spawnPos++;
+                }
+                else if (numDistributors !== 0 && (!partitionedCreeps['distributor'] ||
+                        numDistributors > partitionedCreeps['distributor'].length)) {
+                    DistributeTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
+                    spawnPos++;
+                }
+                else if (numUpgraders !== 0 && (!partitionedCreeps['upgrader'] ||
+                        numUpgraders > partitionedCreeps['upgrader'].length)) {
+                    UpgradeTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
+                }
+                else if (numBuilders !== 0 && (!partitionedCreeps['builder'] ||
+                        numBuilders > partitionedCreeps['builder'].length)) {
+                    BuildTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
+                    spawnPos++;
+                }
+                else { //What to do if all creeps are at optimal levels
+                    if (roomEnergyAvailable < 800) {
+                        BuildTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
+                        spawnPos++;
+                    }
+                    else
+                        break;
+                }
             }
         }
-
-        const towers=_.filter(buildings,(structure)=>(structure.structureType===STRUCTURE_TOWER));
-        Tower.act(towers,buildings);
     }
 };
