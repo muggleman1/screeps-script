@@ -133,7 +133,7 @@ module.exports = {
     upgradeController: function(creep){
         if(creep.memory.x===undefined||creep.memory.y===undefined){
             const controller=creep.room.controller;
-            var xOptions,yOptions;
+            let xOptions,yOptions;
             if(creep.pos.x<controller.pos.x){
                 xOptions=[0,-1,1,-2,2,-3,3];
             }
@@ -146,9 +146,9 @@ module.exports = {
             else{
                 yOptions=[0,1,-1,2,-2,3,-3];
             }
-            var complete=false;
-            for(var i=0;i<xOptions.length;i++){
-                for(var j=0;j<yOptions.length;j++){
+            let complete=false;
+            for(let i=0;i<xOptions.length;i++){
+                for(let j=0;j<yOptions.length;j++){
                     const newx=controller.pos.x+xOptions[i];
                     const newy=controller.pos.y+yOptions[j];
                     if(Game.map.getTerrainAt(newx,newy,creep.room.name)!=="wall"){

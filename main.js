@@ -1,5 +1,6 @@
 require('prototype.room');
 require('prototype.structure');
+require('prototype.creep');
 
 const BaseController=require('controller.base');
 const FarmController=require('controller.farm');
@@ -8,7 +9,6 @@ const TargetController=require('controller.target');
 const HarvestTime = require('role.harvester');
 const UpgradeTime = require('role.upgrader');
 const BuildTime = require('role.builder');
-const RepairTime = require('role.repairMan');
 const MineTime = require('role.miner');
 const DeliveryTime = require('role.deliveryBoy');
 const DistributeTime = require('role.distributor');
@@ -29,6 +29,7 @@ module.exports.loop = function() {
 
         //TODO: updated move function
         //Activate creep scripts as corresponding to their role
+        creep.room.clean=0;
         switch(creep.memory.role){
             case 'miner':
                 MineTime.run(creep);
@@ -54,15 +55,13 @@ module.exports.loop = function() {
             case 'defender':
                 DefendTime.run(creep);
                 break;
-            case 'repairMan':
-                RepairTime.run(creep); //TODO: fix
-                break;
             default: //Reset Creeps role to be the beginning of their name
                 let name=creep.name;
                 creep.memory.role=name.substr(0,name.length-4);
                 break;
             //TODO: other creeps that attack
         }
+        creep.room.clean=1;
     }
 
     const groupedCreeps=_.groupBy(Game.creeps,(creep)=>creep.memory.home);

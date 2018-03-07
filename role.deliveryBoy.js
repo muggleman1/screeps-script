@@ -56,9 +56,9 @@ module.exports = { //TODO: look for resource on the ground
                     const buildings=creep.room.getBuildings();
 
                     const containers=_.filter(buildings,(building)=>building.structureType===STRUCTURE_CONTAINER);
-                    var max=0;
-                    var index=-1;
-                    for(var i=0;i<containers.length;i++){
+                    let max=0;
+                    let index=-1;
+                    for(let i=0;i<containers.length;i++){
                         if(containers[i].store.energy>max){
                             max=containers[i].store.energy;
                             index=i;
@@ -87,7 +87,7 @@ module.exports = { //TODO: look for resource on the ground
             }
                 break;
             case STATE_DISTRIBUTING:{
-                var hasTarget=true;
+                let hasTarget=true;
                 if(creep.memory.targetId===undefined) {
                     const buildings=creep.room.getBuildings();
                     const valid=memoryActions.setTargetStorage(creep,buildings);

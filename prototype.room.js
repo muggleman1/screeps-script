@@ -2,6 +2,8 @@ const util=require('utilities');
 
 /**
  * Summary. Places buildings based on the appropriate RCL
+ *
+ * @type {prototype}
  */
 Room.prototype.controllerChange=function(){
     const currLevel=this.memory.level;
@@ -30,7 +32,11 @@ Room.prototype.controllerChange=function(){
                 break;
             case 5:
                 this.place(STRUCTURE_EXTENSION,10);
-                this.find(FIND_MINERALS)[0].pos.createConstructionSite(STRUCTURE_EXTRACTOR);
+                const min=this.find(FIND_MINERALS)[0];
+                if(min) {
+                    min.pos.createConstructionSite(STRUCTURE_EXTRACTOR);
+                    this.memory.mineralType=min.mineralType;
+                }
                 this.place(STRUCTURE_LAB,3);
                 //TODO: add 1 link
                 break;
@@ -59,6 +65,8 @@ Room.prototype.controllerChange=function(){
 
 /**
  * Summary. Places buildings of the indicated number based on the predefined base layout
+ *
+ * @type {prototype}
  *
  * @param {String} type The type of structure to place
  * @param number Number of Structures to place, default 1
@@ -198,6 +206,8 @@ Room.prototype.place=function(type,number=1){
 /**
  * Summary. Calculates the best possible center for the base given the layout of the room and the predefined base
  *          formation and updates the room's memory
+ *
+ * @type {prototype}
  */
 Room.prototype.findCenter=function(){
     this.memory.centerX=-1;
@@ -257,6 +267,8 @@ Room.prototype.findCenter=function(){
 /**
  * Summary. Returns all sources in the room. Parses from memory or calls Room.find and sets memory
  *
+ * @type {prototype}
+ *
  * @returns {Source[]} All sources in the room
  */
 Room.prototype.getSources=function(){
@@ -272,6 +284,8 @@ Room.prototype.getSources=function(){
 
 /**
  * Summary. Returns all structures in the room. Parses from memory or calls Room.find and sets memory
+ *
+ * @type {prototype}
  *
  * @returns {Structure[]} All Structure objects in the room
  */
@@ -289,6 +303,8 @@ Room.prototype.getBuildings=function(){
 /**
  * Summary. Returns all friendly creeps in the room. Parses from memory or calls Room.find and sets memory
  *
+ * @type {prototype}
+ *
  * @returns {Creep[]} All friendly Creep objects in the room
  */
 Room.prototype.getMyCreeps=function(){
@@ -305,6 +321,8 @@ Room.prototype.getMyCreeps=function(){
 /**
  * Summary. Sets the Room.memory.myCreeps to represent the passed myCreeps
  *
+ * @type {prototype}
+ *
  * @param {Creep[]} myCreeps All friendly creeps in the room
  */
 Room.prototype.setMyCreeps=function(myCreeps) {
@@ -313,6 +331,8 @@ Room.prototype.setMyCreeps=function(myCreeps) {
 
 /**
  * Summary. Returns all enemy creeps in the room. Parses from memory or calls Room.find and sets memory
+ *
+ * @type {prototype}
  *
  * @returns {Creep[]} All enemy Creep objects in the room
  */
@@ -330,6 +350,8 @@ Room.prototype.getEnemyCreeps=function(){
 /**
  * Summary. Returns all spawns in the room. Parses from memory or calls Room.find and sets memory
  *
+ * @type {prototype}
+ *
  * @returns {StructureSpawn[]} All spawns in the room
  */
 Room.prototype.getSpawns=function(){
@@ -344,6 +366,8 @@ Room.prototype.getSpawns=function(){
 
 /**
  * Summary. Clears temporary memory for the room
+ *
+ * @type {prototype}
  */
 Room.prototype.resetTempMemory=function(){
     this.memory.buildings=undefined;
@@ -354,6 +378,8 @@ Room.prototype.resetTempMemory=function(){
 
 /**
  * Summary. Clears temporary memory for the room
+ *
+ * @type {prototype}
  */
 Room.prototype.resetAllMemory=function() {
     for (let i in this.memory) {

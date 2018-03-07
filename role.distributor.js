@@ -25,7 +25,7 @@ module.exports = {
                         if (containers.length) {
                             let index = -1;
                             let max = -1;
-                            for (var i in containers) {
+                            for (let i in containers) {
                                 if (containers[i].store[RESOURCE_ENERGY] > max) {
                                     max = containers[i].store[RESOURCE_ENERGY];
                                     index = i;
@@ -57,7 +57,7 @@ module.exports = {
             }
                 break;
             case STATE_DISTRIBUTING:{
-                var hasTarget=true;
+                let hasTarget=true;
                 if(creep.memory.targetId===undefined) {
                     const buildings=creep.room.getBuildings();
                     hasTarget=memoryActions.setTargetEnergyBuilding(creep,buildings);

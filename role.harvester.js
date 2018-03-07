@@ -26,7 +26,7 @@ module.exports = {
             }
                 break;
             case STATE_DISTRIBUTING:{
-                var hasTarget=true;
+                let hasTarget=true;
                 if(creep.memory.targetId===undefined){
                     const buildings=creep.room.getBuildings();
                     hasTarget=memoryActions.setTargetEnergyBuilding(creep,buildings);

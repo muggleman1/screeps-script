@@ -5,7 +5,6 @@ const Util=require('utilities');
 const HarvestTime = require('role.harvester');
 const UpgradeTime = require('role.upgrader');
 const BuildTime = require('role.builder');
-const RepairTime = require('role.repairMan');
 const MineTime = require('role.miner');
 const DeliveryTime = require('role.deliveryBoy');
 const DistributeTime = require('role.distributor');
@@ -59,6 +58,7 @@ module.exports = {
             let numMiners = 0;
             let numDeliveryBoys = 0;
             let numDistributors = 0;
+            let numExtractors = 0;
             const roomEnergyAvailable=room.energyCapacityAvailable;
             const partitionedCreeps=_.groupBy(roomCreeps,(creep)=>creep.memory.role);
             
@@ -101,6 +101,7 @@ module.exports = {
                 numUpgraders=1;
                 numBuilders=2;
                 numDistributors=1;
+                //TODO: spawn extractors
             }
             else if (roomEnergyAvailable<12900){ //RCL 7
                 const sources=room.getSources();
@@ -119,6 +120,7 @@ module.exports = {
                 numDistributors=1;
             }
 
+            //TODO: don't use a loop and use more sophisticated choosing
             while(spawnPos<availableSpawns.length) {
                 if (numHarvesters !== 0 && (!partitionedCreeps['harvester'] ||
                         numHarvesters > partitionedCreeps['harvester'].length)) {
@@ -143,6 +145,10 @@ module.exports = {
                 else if (numBuilders !== 0 && (!partitionedCreeps['builder'] ||
                         numBuilders > partitionedCreeps['builder'].length)) {
                     BuildTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
+                }
+                else if (numExtractors !== 0 && (!partitionedCreeps['extractor'] ||
+                        numExtractors > partitionedCreeps['extractor'].length)) {
+                    ExtractTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
                 }
                 else { //What to do if all creeps are at optimal levels
                     if (roomEnergyAvailable < 800) {

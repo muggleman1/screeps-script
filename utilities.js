@@ -6,8 +6,8 @@
  * @returns {number}
  */
 const distance=function(pos1,pos2){
-    var xdif=pos1.x-pos2.x;
-    var ydif=pos1.y-pos2.y;
+    let xdif=pos1.x-pos2.x;
+    let ydif=pos1.y-pos2.y;
     return Math.max(Math.abs(xdif),Math.abs(ydif));
 };
 

@@ -12,7 +12,7 @@ module.exports = {
         const state=creep.memory.state;
         switch(state){
             case STATE_PATHING:{
-                var valid=true;
+                let valid=true;
                 if(creep.memory.sourceId===undefined){
                     const roomCreeps=creep.room.getMyCreeps();
                     const sources=creep.room.getSources();
@@ -48,7 +48,7 @@ module.exports = {
                         const buildings=creep.room.getBuildings();
                         const containers = _.filter(buildings, (building) => building.structureType === STRUCTURE_CONTAINER);
                         const sourcePos = Game.getObjectById(creep.memory.sourceId).pos;
-                        for(var i=0;i<containers.length;i++) {
+                        for(let i=0;i<containers.length;i++) {
                             if (Util.areAdjacent(containers[i].pos,sourcePos)) {
                                 creep.memory.containerId=containers[i].id;
                                 break;

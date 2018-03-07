@@ -25,7 +25,7 @@ module.exports = {
             }
                 break;
             case STATE_DEPOSITING:{
-                var hasTarget=true;
+                let hasTarget=true;
                 if(creep.memory.targetId===undefined){
                     const buildings=creep.room.getBuildings();
                     hasTarget=memoryActions.setTargetStorage(creep,buildings);

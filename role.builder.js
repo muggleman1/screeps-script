@@ -26,7 +26,7 @@ module.exports = {
                         const containers = _.filter(buildings, (building) => building.structureType === STRUCTURE_CONTAINER);
                         let max = 0;
                         let index = -1;
-                        for (var i in containers) {
+                        for (let i in containers) {
                             if (containers[i].store.energy > max) {
                                 max = containers[i].store.energy;
                                 index = i;
@@ -74,7 +74,7 @@ module.exports = {
             }
                 break;
             case STATE_BUILDING:{
-                var hasTarget=true;
+                let hasTarget=true;
                 if(creep.memory.targetId===undefined){
                     hasTarget=memoryActions.setTargetConstructionSite(creep);
                 }

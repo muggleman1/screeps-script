@@ -26,7 +26,7 @@ module.exports = {
      * @returns {boolean} Whether there are valid energy buildings in the room
      */
     setTargetEnergyBuilding: function(creep,buildings){
-        var targets = _.filter(buildings,(structure) => (structure.structureType===STRUCTURE_EXTENSION
+        let targets = _.filter(buildings,(structure) => (structure.structureType===STRUCTURE_EXTENSION
             ||structure.structureType === STRUCTURE_SPAWN)&&structure.energy < structure.energyCapacity);
         if(targets.length){
             targets.sort(function(a,b){
@@ -84,16 +84,16 @@ module.exports = {
                 place=0;
             }
             else{
-                var min=-1;
-                var maxEnergy=-1;
-                for(var i in sources) {
-                    var users;
+                let min=-1;
+                let maxEnergy=-1;
+                for(let i in sources) {
+                    let users;
                     if(creepRole===null) {
                         users=_.filter(roomCreeps, (creep) => creep.memory.sourceId === sources[i].id);
                     }
                     else {
                         users=_.filter(roomCreeps, (creep) => creep.memory.sourceId === sources[i].id
-                            && creep.memory.role===creepRole);
+                            && creep.memory.role === creepRole);
                     }
                     if(min===-1||users.length<min||(users.length===min&&sources[i].energy>maxEnergy)){
                         min=users.length;
