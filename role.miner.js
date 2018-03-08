@@ -1,77 +1,24 @@
-const actions=require('actions.creeps');
-const memoryActions=require('utilities.creeps');
 const BodyPartSelector=require('utilities.bodyParts');
-
 const Util=require('utilities');
 
 module.exports = {
     run: function(creep){
-        const STATE_PATHING=0;
-        const STATE_HARVESTING=1;
-
+        const STATE_HARVESTING=0;
+        
         const state=creep.memory.state;
         switch(state){
-            case STATE_PATHING:{
-                let valid=true;
-                if(creep.memory.sourceId===undefined){
+            case STATE_HARVESTING:
+                let sId=creep.getId(CREEP_ID_SOURCE);
+                if(sId===undefined) {
                     const roomCreeps=creep.room.getMyCreeps();
                     const sources=creep.room.getSources();
-                    valid=memoryActions.setSource(creep,roomCreeps,sources,'miner');
+                    creep.setSource(roomCreeps, sources);
                 }
-                if(valid) {
-                    actions.gatherEnergy(creep);
-
-                    const target=creep.memory.sourceId;
-                    if(Game.getObjectById(target)===null){
-                        creep.memory.sourceId=undefined;
-                    }
-                    else if (Util.areAdjacent(creep.pos, Game.getObjectById(target).pos)) {
-                        creep.memory.state = STATE_HARVESTING;
-                    }
-                }
-            }
+                creep.gather();
+                //TODO: add dropping into containers? or force pathing onto a container
                 break;
-            case STATE_HARVESTING:{
-                const canGather=actions.gatherEnergy(creep);
-                if(!canGather){
-                    creep.memory.state=STATE_PATHING;
-                }
-
-                if(creep.carry.energy>creep.carryCapacity*.9){
-                    let valid=true;
-                    if(creep.memory.containerId){
-                        const container=Game.getObjectById(creep.memory.containerId);
-                        if(!container||container.storeSum()===container.storeCapacity)
-                            valid=false;
-                    }
-                    if(!valid||creep.memory.containerId===undefined) {
-                        const buildings=creep.room.getBuildings();
-                        const containers = _.filter(buildings, (building) => building.structureType === STRUCTURE_CONTAINER);
-                        const sourcePos = Game.getObjectById(creep.memory.sourceId).pos;
-                        for(let i=0;i<containers.length;i++) {
-                            if (Util.areAdjacent(containers[i].pos,sourcePos)) {
-                                creep.memory.containerId=containers[i].id;
-                                break;
-                            }
-                        }
-                    }
-                    if(creep.memory.containerId!==undefined) {
-                        const target=Game.getObjectById(creep.memory.containerId);
-                        if(Util.areAdjacent(creep.pos,target.pos)){
-                            creep.transfer(Game.getObjectById(creep.memory.containerId), RESOURCE_ENERGY);
-                        }
-                        else{
-                            if(creep.fatigue===0) {
-                                creep.moveTo(target);
-                            }
-                        }
-                    }
-                }
-            }
-                break;
-            default:{
-                creep.memory.state=STATE_PATHING;
-            }
+            default:
+                creep.memory.state=STATE_HARVESTING;
                 break;
         }
     },

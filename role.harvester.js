@@ -1,56 +1,69 @@
-const actions= require('actions.creeps');
-const memoryActions=require('utilities.creeps');
 const BodyPartSelector=require('utilities.bodyParts');
-
 const Util=require('utilities');
 
 module.exports = {
     run: function(creep) {
         const STATE_HARVESTING=0;
         const STATE_DISTRIBUTING=1;
+        const STATE_UPGRADING=2;
 
         const state=creep.memory.state;
         switch(state){
-            case STATE_HARVESTING:{
-                if(creep.memory.sourceId===undefined) {
+            case STATE_HARVESTING:
+                let sId=creep.getId(CREEP_ID_SOURCE);
+                if(sId===undefined) {
                     const roomCreeps=creep.room.getMyCreeps();
                     const sources=creep.room.getSources();
-                    memoryActions.setSource(creep, roomCreeps, sources);
+                    creep.setSource(roomCreeps, sources);
                 }
-                actions.gatherEnergy(creep);
+                creep.gather();
 
                 if(creep.carry.energy===creep.carryCapacity){
                     creep.memory.state=STATE_DISTRIBUTING;
-                    creep.memory.sourceId=undefined;
+                    creep.setId(CREEP_ID_SOURCE,undefined);
                 }
-            }
                 break;
-            case STATE_DISTRIBUTING:{
+            case STATE_DISTRIBUTING:
                 let hasTarget=true;
-                if(creep.memory.targetId===undefined){
-                    const buildings=creep.room.getBuildings();
-                    hasTarget=memoryActions.setTargetEnergyBuilding(creep,buildings);
+                let id=creep.getId(CREEP_ID_DROPOFF);
+                if(id===undefined){
+                    hasTarget=creep.setEnergyBuilding(CREEP_ID_DROPOFF);
+                    if(hasTarget)
+                        id=creep.getId(CREEP_ID_DROPOFF);
                 }
-                if(creep.memory.targetId==="controller")
-                    hasTarget=false;
 
                 if(hasTarget)
-                    actions.refillEnergyBuildings(creep);
+                    creep.refillBuildings(CREEP_ID_DROPOFF,RESOURCE_ENERGY);
                 else{
-                    creep.memory.targetId="controller";
-                    actions.upgradeController(creep);
+                    creep.memory.state=STATE_UPGRADING;
+                    creep.setId(CREEP_ID_DROPOFF,undefined);
                 }
                 if(creep.carry.energy===0){
                     creep.memory.state=STATE_HARVESTING;
-                    creep.memory.targetId=undefined;
-                    creep.memory.x=undefined;
-                    creep.memory.y=undefined;
+                    creep.setId(CREEP_ID_DROPOFF,undefined);
                 }
-            }
                 break;
-            default:{
+            case STATE_UPGRADING:
+                let ret=true;
+                if(creep.memory.controllerX===undefined || creep.memory.controllerY===undefined)
+                    ret=creep.setControllerMem();
+                if(ret) {
+                    creep.upgrade();
+
+                    if (creep.carry.energy === 0) {
+                        creep.memory.state = STATE_HARVESTING;
+                        creep.memory.controllerX=undefined;
+                        creep.memory.controllerY=undefined;
+                    }
+                }
+                else{
+                    creep.memory.state = STATE_HARVESTING;
+                    creep.memory.controllerX=undefined;
+                    creep.memory.controllerY=undefined;
+                }
+                break;
+            default:
                 creep.memory.state=STATE_HARVESTING;
-            }
                 break;
         }
 	},

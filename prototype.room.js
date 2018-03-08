@@ -22,8 +22,8 @@ Room.prototype.controllerChange=function(){
                 //TODO: place walls and ramparts
                 break;
             case 3:
-                this.place(STRUCTURE_EXTENSION,10);
                 this.place(STRUCTURE_STORAGE);
+                this.place(STRUCTURE_EXTENSION,10);
                 break;
             case 4:
                 this.place(STRUCTURE_EXTENSION,10);
@@ -31,12 +31,12 @@ Room.prototype.controllerChange=function(){
                 //TODO: add 2 links
                 break;
             case 5:
-                this.place(STRUCTURE_EXTENSION,10);
                 const min=this.find(FIND_MINERALS)[0];
                 if(min) {
                     min.pos.createConstructionSite(STRUCTURE_EXTRACTOR);
                     this.memory.mineralType=min.mineralType;
                 }
+                this.place(STRUCTURE_EXTENSION,10);
                 this.place(STRUCTURE_LAB,3);
                 //TODO: add 1 link
                 break;

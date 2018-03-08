@@ -1,6 +1,7 @@
 require('prototype.room');
 require('prototype.structure');
 require('prototype.creep');
+require('constants')
 
 const BaseController=require('controller.base');
 const FarmController=require('controller.farm');

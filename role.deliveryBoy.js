@@ -1,10 +1,8 @@
-const actions=require('actions.creeps');
-const memoryActions=require('utilities.creeps');
 const BodyPartSelector=require('utilities.bodyParts');
 
 const Util=require('utilities');
 
-module.exports = { //TODO: look for resource on the ground
+module.exports = {
     run: function(creep){
         const STATE_PICKING_UP=0;
         const STATE_EMPTYING_BINS=1;
@@ -12,102 +10,83 @@ module.exports = { //TODO: look for resource on the ground
 
         const state=creep.memory.state;
         switch(state){
-            case STATE_PICKING_UP: { //TODO: this is horrible
-                if(creep.memory.resourceId===undefined||Game.getObjectById(creep.memory.resourceId)===null) {
-                    const targets = creep.room.find(FIND_DROPPED_RESOURCES);
-                    if (targets.length) {
-                        targets.filter((value)=>value>20);
-                        targets.sort(function(a,b){
-                           return a.amount-b.amount;
-                        });
-                        creep.memory.resourceId = targets[0].id;
-                    }
-                    else{
-                        creep.memory.state=STATE_EMPTYING_BINS;
-                        creep.memory.resourceId=0;
-                        return;
-                    }
+            case STATE_PICKING_UP:
+                let ret=true;
+                let id=creep.getId(CREEP_ID_PICKUP);
+                changed=false;
+                if(id===undefined||Game.getObjectById(id)===null) {
+                    changed=true;
+                    ret=creep.setDropped(CREEP_ID_PICKUP,RESOURCE_ENERGY);
                 }
-                const resource=Game.getObjectById(creep.memory.resourceId);
-                if(Util.areAdjacent(creep.pos,resource.pos)){
-                    creep.pickup(resource);
+                if(ret){
+                    if(changed)
+                        id=creep.getId(CREEP_ID_PICKUP);
+                    creep.pickupResource(CREEP_ID_PICKUP);
+                }
+                else {
                     creep.memory.state=STATE_EMPTYING_BINS;
-                    creep.memory.resourceId=0;
+                    creep.setId(CREEP_ID_PICKUP,undefined);
+                }
+
+                if(creep.carry.energy===creep.carryCapacity){
+                    creep.memory.state=STATE_DISTRIBUTING;
+                    creep.setId(CREEP_ID_PICKUP,undefined);
+                }
+                break;
+            case STATE_EMPTYING_BINS:
+                let cRet=true;
+                let cId=creep.getId(CREEP_ID_PICKUP);
+                let changed=false;
+                if(cId===undefined || Game.getObjectById(cId)===null){
+                    changed=true;
+                    cRet = creep.setBuilding(CREEP_ID_PICKUP,
+                        (building) => building.structureType === STRUCTURE_CONTAINER
+                            && building.store[RESOURCE_ENERGY] > 0,
+                        function(a,b) {return b.energy - a.energy});
+                }
+                if(cRet){
+                    if(changed){
+                        cId=creep.getId(CREEP_ID_PICKUP);
+                    }
+                    creep.withdrawResource(CREEP_ID_PICKUP,RESOURCE_ENERGY);
+
+                    if (creep.carry.energy === creep.carryCapacity) {
+                        creep.memory.state = STATE_DISTRIBUTING;
+                        creep.setId(CREEP_ID_PICKUP,undefined);
+                    }
                 }
                 else{
-                    if(creep.fatigue===0) {
-                        creep.moveTo(resource);
-                    }
+                    creep.memory.state = STATE_DISTRIBUTING;
+                    creep.setId(CREEP_ID_PICKUP,undefined);
                 }
-                if(creep.carry.energy===creep.carryCapacity){
-                    creep.memory.state=STATE_DISTRIBUTING;
-                    creep.memory.resourceId=0;
-                }
-            }
                 break;
-            case STATE_EMPTYING_BINS:{
-                let valid=true;
-                if(creep.memory.containerId){
-                    const container=Game.getObjectById(creep.memory.containerId);
-                    if(!container||container.storeSum()===0)
-                        valid=false;
+            case STATE_DISTRIBUTING:
+                let canDistribute=true;
+                let dId=creep.getId(CREEP_ID_DROPOFF);
+                let isChanged=false;
+                if(dId===undefined || Game.getObjectById(dId)===null){
+                    isChanged=true;
+                    canDistribute = creep.setBuilding(CREEP_ID_DROPOFF,
+                        (building) => building.structureType === STRUCTURE_STORAGE);
                 }
-                if (!valid||creep.memory.containerId === undefined) {
-                    const buildings=creep.room.getBuildings();
+                if(canDistribute){
+                    if(isChanged){
+                        dId=creep.getId(CREEP_ID_DROPOFF);
+                    }
+                    creep.refillBuildings(CREEP_ID_DROPOFF,RESOURCE_ENERGY);
 
-                    const containers=_.filter(buildings,(building)=>building.structureType===STRUCTURE_CONTAINER);
-                    let max=0;
-                    let index=-1;
-                    for(let i=0;i<containers.length;i++){
-                        if(containers[i].store.energy>max){
-                            max=containers[i].store.energy;
-                            index=i;
-                        }
-                    }
-                    if(index>=0){
-                        creep.memory.containerId=containers[index].id;
+                    if (creep.carry.energy === 0) {
+                        creep.memory.state = STATE_PICKING_UP;
+                        creep.setId(CREEP_ID_DROPOFF,undefined);
                     }
                 }
-                if(creep.memory.containerId!==undefined){
-                    const target=Game.getObjectById(creep.memory.containerId);
-                    if(Util.areAdjacent(creep.pos,target.pos)){
-                        creep.withdraw(Game.getObjectById(creep.memory.containerId),RESOURCE_ENERGY);
-                    }
-                    else{
-                        if(creep.fatigue===0) {
-                            creep.moveTo(target);
-                        }
-                    }
+                else{
+                    creep.memory.state = STATE_PICKING_UP;
+                    creep.setId(CREEP_ID_DROPOFF,undefined);
                 }
-
-                if(creep.carry.energy===creep.carryCapacity){
-                    creep.memory.state=STATE_DISTRIBUTING;
-                    creep.memory.containerId=undefined;
-                }
-            }
                 break;
-            case STATE_DISTRIBUTING:{
-                let hasTarget=true;
-                if(creep.memory.targetId===undefined) {
-                    const buildings=creep.room.getBuildings();
-                    const valid=memoryActions.setTargetStorage(creep,buildings);
-                    if(!valid) {
-                        hasTarget=memoryActions.setTargetEnergyBuilding(creep, buildings);
-                    }
-                }
-                if(hasTarget){
-                    actions.refillEnergyBuildings(creep);
-                }
-
-                if(creep.carry.energy===0){
-                    creep.memory.state=STATE_PICKING_UP;
-                    creep.memory.targetId=undefined;
-                }
-            }
-                break;
-            default:{
+            default:
                 creep.memory.state=STATE_PICKING_UP;
-            }
                 break;
         }
     },

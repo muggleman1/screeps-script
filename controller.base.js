@@ -1,5 +1,4 @@
 const Tower=require('controller.towers');
-const BodyPartSelector=require('utilities.bodyParts');
 const Util=require('utilities');
 
 const HarvestTime = require('role.harvester');
@@ -37,127 +36,158 @@ module.exports = {
         //Respawn creeps as necessary
         if (availableSpawns.length) {
             //Periodically check if there are no creeps. If so, spawn a harvester
-            if(Game.time%20===0){
+            if(Game.time%25===0){
                 if(!roomCreeps||roomCreeps.length===0){
                     HarvestTime.spawn(availableSpawns[spawnPos], room.energyAvailable, room);
                     spawnPos++;
+                    //TODO: maybe spawn a distributor if there is a lot of stuff in storage?
                 }
             }
-            if(Game.time%5===0 && spawnPos<availableSpawns.length){
+            if(Game.time%10===0 && spawnPos<availableSpawns.length){
                 let enemyCreeps=room.getEnemyCreeps();
-                if(enemyCreeps.length){
-                    DefendTime.spawn(availableSpawns[spawnPos],room.energyCapacityAvailable,room);
-                    spawnPos++;
+                if(enemyCreeps.length) {
+                    let canDamage = false;
+                    for(let creep of enemyCreeps) {
+                        const body = creep.body;
+                        for(let part of body) {
+                            if (part === WORK || part === ATTACK || part === RANGED_ATTACK || part === CLAIM) {
+                                canDamage = true;
+                                break;
+                            }
+                        }
+                        if(canDamage)
+                            break;
+                    }
+                    if(canDamage) {
+                        DefendTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
+                        spawnPos++;
+                    }
                 }
             }
 
-            //TODO: save these in memory in controllerChange?
-            let numHarvesters = 0;
-            let numUpgraders = 0;
-            let numBuilders = 0;
-            let numMiners = 0;
-            let numDeliveryBoys = 0;
-            let numDistributors = 0;
-            let numExtractors = 0;
             const roomEnergyAvailable=room.energyCapacityAvailable;
             const partitionedCreeps=_.groupBy(roomCreeps,(creep)=>creep.memory.role);
-            
-            //Set number of each creep
+
+            let roles={harvester:0,upgrader:0,builder:0,miner:0,deliveryBoy:0,distributor:0,extractor:0};
+            let rolesNeeded={harvester:0,upgrader:0,builder:0,miner:0,deliveryBoy:0,distributor:0,extractor:0};
             if(roomEnergyAvailable<550){ //RCL 1
-                numHarvesters = 2;
-                numUpgraders = 1;
-                numBuilders = 1;
+                roles.harvester = 2;
+                roles.upgrader = 1;
+                roles.builder = 1;
             }
             else if (roomEnergyAvailable<800){ //RCL 2
-                numHarvesters = 3;
-                numUpgraders = 2;
-                numBuilders = 3;
+                roles.harvester = 3;
+                roles.upgrader = 2;
+                roles.builder = 3;
             }
             else if (roomEnergyAvailable<1300){ //RCL 3
-                numHarvesters = 4;
-                numUpgraders = 2;
-                numBuilders = 4;
+                roles.harvester = 4;
+                roles.upgrader = 2;
+                roles.builder = 4;
             }
             else if (roomEnergyAvailable<1800){ //RCL 4 //TODO: colony dies so fix that shit
                 const sources=room.getSources();
-                numMiners=sources.length;
-                numDeliveryBoys=numMiners*1.5;
-                numUpgraders=1;
-                numBuilders=2;
-                numDistributors=1; //The storage should be constructed FIRST
+                roles.miner = sources.length;
+                roles.deliveryBoy = sources.length*1.5;
+                roles.upgrader = 1;
+                roles.builder = 2;
+                roles.distributor = 1;
             }
             else if (roomEnergyAvailable<2300){ //RCL 5
                 const sources=room.getSources();
-                numMiners=sources.length;
-                numDeliveryBoys=numMiners*1.5;
-                numUpgraders=1;
-                numBuilders=2;
-                numDistributors=1;
+                roles.miner = sources.length;
+                roles.deliveryBoy = sources.length*1.5;
+                roles.upgrader = 1;
+                roles.builder = 2;
+                roles.distributor = 1;
             }
             else if (roomEnergyAvailable<5600){ //RCL 6
                 const sources=room.getSources();
-                numMiners=sources.length;
-                numDeliveryBoys=numMiners*1.5;
-                numUpgraders=1;
-                numBuilders=2;
-                numDistributors=1;
-                //TODO: spawn extractors
+                roles.miner = sources.length;
+                roles.deliveryBoy = sources.length*1.5;
+                roles.upgrader = 1;
+                roles.builder = 2;
+                roles.distributor = 1;
+                roles.extractor = 1;
             }
             else if (roomEnergyAvailable<12900){ //RCL 7
                 const sources=room.getSources();
-                numMiners=sources.length;
-                numDeliveryBoys=numMiners*1.5;
-                numUpgraders=1;
-                numBuilders=2;
-                numDistributors=1;
+                roles.miner = sources.length;
+                roles.deliveryBoy = sources.length*1.5;
+                roles.upgrader = 1;
+                roles.builder = 2;
+                roles.distributor = 1;
+                roles.extractor = 1;
             }
             else { //RCL 8
                 const sources=room.getSources();
-                numMiners=sources.length;
-                numDeliveryBoys=numMiners*1.5;
-                numUpgraders=1;
-                numBuilders=2;
-                numDistributors=1;
+                roles.miner = sources.length;
+                roles.deliveryBoy = sources.length*1.5;
+                roles.upgrader = 1;
+                roles.builder = 2;
+                roles.distributor = 1;
+                roles.extractor = 1;
             }
 
-            //TODO: don't use a loop and use more sophisticated choosing
-            while(spawnPos<availableSpawns.length) {
-                if (numHarvesters !== 0 && (!partitionedCreeps['harvester'] ||
-                        numHarvesters > partitionedCreeps['harvester'].length)) {
-                    HarvestTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
+            //Set rolesNeeded
+            if(!partitionedCreeps['harvester']) {rolesNeeded.harvester=roles.harvester;}
+            else {rolesNeeded.harvester=Math.max(0,roles.harvester-partitionedCreeps['harvester'].length); }
+
+            if(!partitionedCreeps['upgrader']) {rolesNeeded.upgrader=roles.upgrader;}
+            else {rolesNeeded.upgrader=Math.max(0,roles.upgrader-partitionedCreeps['upgrader'].length);}
+
+            if(!partitionedCreeps['builder']) {rolesNeeded.builder=roles.builder;}
+            else {rolesNeeded.builder=Math.max(0,roles.builder-partitionedCreeps['builder'].length);}
+
+            if(!partitionedCreeps['miner']) {rolesNeeded.miner=roles.miner;}
+            else {rolesNeeded.miner=Math.max(0,roles.miner-partitionedCreeps['miner'].length);}
+
+            if(!partitionedCreeps['deliveryBoy']) {rolesNeeded.deliveryBoy=roles.deliveryBoy;}
+            else {rolesNeeded.deliveryBoy=Math.max(0,roles.deliveryBoy-partitionedCreeps['deliveryBoy'].length);}
+
+            if(!partitionedCreeps['distributor']) {rolesNeeded.distributor=roles.distributor;}
+            else {rolesNeeded.distributor=Math.max(0,roles.distributor-partitionedCreeps['distributor'].length);}
+
+            if(!partitionedCreeps['extractor']) {rolesNeeded.extractor=roles.extractor;}
+            else {rolesNeeded.extractor=Math.max(0,roles.extractor-partitionedCreeps['extractor'].length);}
+
+            //Spawn based on needed creeps
+            for(let i=spawnPos;i<availableSpawns.length;i++){
+                if(rolesNeeded.harvester>0){
+                    HarvestTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
+                    rolesNeeded.harvester--;
                 }
-                else if (numMiners !== 0 && (!partitionedCreeps['miner'] ||
-                        numMiners > partitionedCreeps['miner'].length)) {
-                    MineTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
+                else if(rolesNeeded.upgrader>0){
+                    UpgradeTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
+                    rolesNeeded.upgrader--;
                 }
-                else if (numDeliveryBoys !== 0 && (!partitionedCreeps['deliveryBoy'] ||
-                        numDeliveryBoys > partitionedCreeps['deliveryBoy'].length)) {
-                    DeliveryTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
+                else if(rolesNeeded.builder>0){
+                    BuildTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
+                    rolesNeeded.builder--;
                 }
-                else if (numDistributors !== 0 && (!partitionedCreeps['distributor'] ||
-                        numDistributors > partitionedCreeps['distributor'].length)) {
-                    DistributeTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
+                else if(rolesNeeded.miner>0){
+                    MineTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
+                    rolesNeeded.miner--;
                 }
-                else if (numUpgraders !== 0 && (!partitionedCreeps['upgrader'] ||
-                        numUpgraders > partitionedCreeps['upgrader'].length)) {
-                    UpgradeTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
+                else if(rolesNeeded.deliveryBoy>0){
+                    DeliveryTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
+                    rolesNeeded.deliveryBoy--;
                 }
-                else if (numBuilders !== 0 && (!partitionedCreeps['builder'] ||
-                        numBuilders > partitionedCreeps['builder'].length)) {
-                    BuildTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
+                else if(rolesNeeded.distributor>0){
+                    DistributeTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
+                    rolesNeeded.distributor--;
                 }
-                else if (numExtractors !== 0 && (!partitionedCreeps['extractor'] ||
-                        numExtractors > partitionedCreeps['extractor'].length)) {
-                    ExtractTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
+                else if(rolesNeeded.extractor>0){
+                    ExtractTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
+                    rolesNeeded.extractor--;
                 }
-                else { //What to do if all creeps are at optimal levels
+                else{
                     if (roomEnergyAvailable < 800) {
                         BuildTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);
                     }
                     else
                         break;
                 }
-                spawnPos++;
             }
         }
     }

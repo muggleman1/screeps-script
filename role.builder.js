@@ -1,7 +1,4 @@
-const actions= require('actions.creeps');
-const memoryActions=require('utilities.creeps');
 const BodyPartSelector=require('utilities.bodyParts');
-
 const Util=require('utilities');
 
 module.exports = {
@@ -9,96 +6,99 @@ module.exports = {
         const STATE_PICKING_UP=0;
         const STATE_HARVESTING=1;
         const STATE_BUILDING=2;
+        const STATE_UPGRADING=3;
 
         const state=creep.memory.state;
         switch(state){
-            case STATE_PICKING_UP:{
-                let needsTarget=false;
-                if(creep.memory.targetId){
-                    const structure=Game.getObjectById(creep.memory.targetId);
-                    if(!structure||structure.store[RESOURCE_ENERGY]===0)
-                        needsTarget=true;
-                }
-                if (needsTarget||creep.memory.targetId === undefined) {
-                    const buildings=creep.room.getBuildings();
-                    if (!memoryActions.setTargetStorage(creep, buildings)||
-                        Game.getObjectById(creep.memory.targetId).store[RESOURCE_ENERGY]===0) { //if storage is empty
-                        const containers = _.filter(buildings, (building) => building.structureType === STRUCTURE_CONTAINER);
-                        let max = 0;
-                        let index = -1;
-                        for (let i in containers) {
-                            if (containers[i].store.energy > max) {
-                                max = containers[i].store.energy;
-                                index = i;
-                            }
-                        }
-                        if (index >= 0) {
-                            creep.memory.targetId = containers[index].id;
-                        }
-                        else{
-                            creep.memory.state = STATE_HARVESTING;
-                            creep.memory.targetId = undefined;
-                            return;
-                        }
+            case STATE_PICKING_UP:
+                let ret=true;
+                let id=creep.getId(CREEP_ID_PICKUP);
+                let changed=false;
+                if(id===undefined || Game.getObjectById(id)===null){
+                    changed=true;
+                    creep.setId(CREEP_ID_PICKUP,undefined);
+                    ret=creep.setBuilding(CREEP_ID_PICKUP,
+                        (building) => building.structureType === STRUCTURE_STORAGE
+                            && building.store[RESOURCE_ENERGY] > 0,
+                        function(a,b) {return b.energy-a.energy});
+                    if(!ret) {
+                        ret = creep.setBuilding(CREEP_ID_PICKUP,
+                            (building) => building.structureType === STRUCTURE_CONTAINER
+                                && building.store[RESOURCE_ENERGY] > 0,
+                            function(a,b) {return b.energy - a.energy});
                     }
                 }
+                if(ret){
+                    if(changed){
+                        id=creep.getId(CREEP_ID_PICKUP);
+                    }
+                    creep.withdrawResource(CREEP_ID_PICKUP,RESOURCE_ENERGY);
 
-                const target=Game.getObjectById(creep.memory.targetId);
-                if(Util.areAdjacent(creep.pos,target.pos)){
-                    creep.withdraw(target,RESOURCE_ENERGY);
+                    if (creep.carry.energy === creep.carryCapacity) {
+                        creep.memory.state = STATE_BUILDING;
+                        creep.setId(CREEP_ID_PICKUP,undefined);
+                    }
                 }
                 else{
-                    if(creep.fatigue===0) {
-                        creep.moveTo(target);
-                    }
+                    creep.memory.state = STATE_HARVESTING;
+                    creep.setId(CREEP_ID_PICKUP,undefined);
                 }
-
-                if (creep.carry.energy === creep.carryCapacity) {
-                    creep.memory.state = STATE_BUILDING;
-                    creep.memory.targetId = undefined;
-                }
-            }
                 break;
-            case STATE_HARVESTING:{
-                if(creep.memory.sourceId===undefined) {
+            case STATE_HARVESTING:
+                let sId=creep.getId(CREEP_ID_SOURCE);
+                if(sId===undefined) {
                     const roomCreeps=creep.room.getMyCreeps();
                     const sources=creep.room.getSources();
-                    memoryActions.setSource(creep, roomCreeps, sources);
+                    creep.setSource(roomCreeps, sources);
                 }
-                actions.gatherEnergy(creep);
+                creep.gather();
 
                 if(creep.carry.energy===creep.carryCapacity){
                     creep.memory.state=STATE_BUILDING;
-                    creep.memory.sourceId=undefined;
+                    creep.setId(CREEP_ID_SOURCE,undefined);
                 }
-            }
                 break;
-            case STATE_BUILDING:{
+            case STATE_BUILDING:
                 let hasTarget=true;
-                if(creep.memory.targetId===undefined){
-                    hasTarget=memoryActions.setTargetConstructionSite(creep);
+                let cId=creep.getId(CREEP_ID_SITE);
+                if(cId===undefined){
+                    hasTarget=creep.setConstructionSite(CREEP_ID_SITE);
+                    if(hasTarget)
+                        cId=creep.getId(CREEP_ID_SITE);
                 }
-                if(creep.memory.targetId==="controller")
-                    hasTarget=false;
 
                 if(hasTarget)
-                    actions.construct(creep);
+                    creep.construct(CREEP_ID_SITE);
                 else{
-                    creep.memory.targetId="controller";
-                    actions.upgradeController(creep);
+                    creep.memory.state=STATE_UPGRADING;
+                    creep.setId(CREEP_ID_SITE,undefined);
                 }
-
                 if(creep.carry.energy===0){
                     creep.memory.state=STATE_PICKING_UP;
-                    creep.memory.targetId=undefined;
-                    creep.memory.x=undefined;
-                    creep.memory.y=undefined;
+                    creep.setId(CREEP_ID_SITE,undefined);
                 }
-            }
                 break;
-            default:{
+            case STATE_UPGRADING:
+                let canUpgrade=true;
+                if(creep.memory.controllerX===undefined || creep.memory.controllerY===undefined)
+                    canUpgrade=creep.setControllerMem();
+                if(canUpgrade) {
+                    creep.upgrade();
+
+                    if (creep.carry.energy === 0) {
+                        creep.memory.state = STATE_HARVESTING;
+                        creep.memory.controllerX=undefined;
+                        creep.memory.controllerY=undefined;
+                    }
+                }
+                else{
+                    creep.memory.state = STATE_HARVESTING;
+                    creep.memory.controllerX=undefined;
+                    creep.memory.controllerY=undefined;
+                }
+                break;
+            default:
                 creep.memory.state=STATE_PICKING_UP;
-            }
                 break;
         }
 	},

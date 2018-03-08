@@ -1,7 +1,4 @@
-const actions= require('actions.creeps');
-const memoryActions=require('utilities.creeps');
 const BodyPartSelector=require('utilities.bodyParts');
-
 const Util=require('utilities');
 
 module.exports = {
@@ -11,37 +8,43 @@ module.exports = {
 
         const state=creep.memory.state;
         switch(state){
-            case STATE_HARVESTING:{
-                let valid=true;
-                if(creep.memory.mineId===undefined)
-                    valid=memoryActions.setExtractor(creep);
-                if(valid)
-                    actions.gatherMinerals(creep);
+            case STATE_HARVESTING:
+                let sId=creep.getId(CREEP_ID_SOURCE);
+                if(sId===undefined) {
+                    creep.setMine(CREEP_ID_SOURCE);
+                    creep.memory.mineralType=Game.getObjectById(creep.getId(CREEP_ID_SOURCE)).mineralType;
+                }
+                creep.gather();
 
                 if(creep.carry.energy===creep.carryCapacity){
                     creep.memory.state=STATE_DEPOSITING;
-                    creep.memory.sourceId=undefined;
+                    //This does not reset sourceId, the mine will not change ever
                 }
-            }
                 break;
-            case STATE_DEPOSITING:{
+            case STATE_DEPOSITING:
                 let hasTarget=true;
-                if(creep.memory.targetId===undefined){
-                    const buildings=creep.room.getBuildings();
-                    hasTarget=memoryActions.setTargetStorage(creep,buildings);
+                let id=creep.getId(CREEP_ID_DROPOFF);
+                if(id===undefined){
+                    hasTarget=creep.setBuilding(CREEP_ID_DROPOFF,
+                        (building) => building.structureType === STRUCTURE_STORAGE,
+                        function(a,b) {return a.storeSum()-b.storeSum});
+                    if(hasTarget)
+                        id=creep.getId(CREEP_ID_DROPOFF);
                 }
-                if(hasTarget)
-                    actions.refillMineralBuildings(creep);
 
+                if(hasTarget)
+                    creep.refillBuildings(CREEP_ID_DROPOFF,creep.memory.mineralType);
+                else{
+                    creep.memory.state=STATE_HARVESTING;
+                    creep.setId(CREEP_ID_DROPOFF,undefined);
+                }
                 if(creep.carry.energy===0){
                     creep.memory.state=STATE_HARVESTING;
-                    creep.memory.targetId=undefined;
+                    creep.setId(CREEP_ID_DROPOFF,undefined);
                 }
-            }
                 break;
-            default:{
+            default:
                 creep.memory.state=STATE_HARVESTING;
-            }
                 break;
         }
 	},
