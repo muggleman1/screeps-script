@@ -1,7 +1,7 @@
 require('prototype.room');
 require('prototype.structure');
 require('prototype.creep');
-require('constants')
+require('constants');
 
 const BaseController=require('controller.base');
 const FarmController=require('controller.farm');
@@ -81,23 +81,26 @@ module.exports.loop = function() {
             }
             room.memory.clean=0;
 
-            //Run the controller for the correct room level
-            if (room.memory.level > 0) {
+            //Run the controller for the correct room level (0 if it is a base w/ no spawn)
+            if (room.memory.level >= 0) {
                 BaseController.run(room,groupedCreeps[room.name]);
             }
-            else if (room.memory.level === 0) {
+            else if (room.memory.level === -1) {
                 FarmController.run(room,groupedCreeps[room.name]);
             }
-            else if (room.memory.level === -1) {
+            else if (room.memory.level === -2) {
                 TargetController.run(room,groupedCreeps[room.name]);
             }
             else{
                 if(room.controller) {
                     if (room.controller.my) {
-                        room.memory.level = room.controller.level;
+                        if(room.getSpawns().length===0)
+                            room.memory.level=0;
+                        else
+                            room.memory.level = room.controller.level;
                     }
                     else {
-                        room.memory.level = -1;
+                        room.memory.level = -2;
                     }
                 }
                 //TODO: define behavior for rooms with no controller (remove unnecessary rooms?)

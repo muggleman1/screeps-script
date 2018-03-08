@@ -12,6 +12,8 @@ const distance=function(pos1,pos2){
 };
 
 module.exports = {
+    distance: distance,
+
     /**
      * Summary. Returns true if pos1 and pos2 are adjacent, otherwise false
      *

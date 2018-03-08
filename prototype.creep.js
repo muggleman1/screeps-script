@@ -306,7 +306,7 @@ Creep.prototype.setEnergyBuilding=function(type){
  * @returns {boolean} Whether there are valid energy ConstructionSite objects in the room
  */
 Creep.prototype.setConstructionSite=function(type){
-    const targets = this.room.find(FIND_CONSTRUCTION_SITES); //TODO: use the room for that?
+    const targets = this.room.find(FIND_CONSTRUCTION_SITES);
     if(targets.length) {
         this.setId(type,targets[0].id);
         return true;

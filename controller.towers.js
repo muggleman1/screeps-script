@@ -45,7 +45,7 @@ module.exports = {
 
                         let counter=0;
                         for(let tower of idealTowers){
-                            tower.repair(targets[counter%targets.length]); //TODO: more sophisticated choosing
+                            tower.repair(targets[counter%targets.length]);
                             counter++;
                         }
                     }

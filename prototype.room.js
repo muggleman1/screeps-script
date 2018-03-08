@@ -2,8 +2,6 @@ const util=require('utilities');
 
 /**
  * Summary. Places buildings based on the appropriate RCL
- *
- * @type {prototype}
  */
 Room.prototype.controllerChange=function(){
     const currLevel=this.memory.level;
@@ -65,8 +63,6 @@ Room.prototype.controllerChange=function(){
 
 /**
  * Summary. Places buildings of the indicated number based on the predefined base layout
- *
- * @type {prototype}
  *
  * @param {String} type The type of structure to place
  * @param number Number of Structures to place, default 1
@@ -206,8 +202,6 @@ Room.prototype.place=function(type,number=1){
 /**
  * Summary. Calculates the best possible center for the base given the layout of the room and the predefined base
  *          formation and updates the room's memory
- *
- * @type {prototype}
  */
 Room.prototype.findCenter=function(){
     this.memory.centerX=-1;
@@ -215,11 +209,15 @@ Room.prototype.findCenter=function(){
     this.memory.orientation='vertical';
 
     //Initialize the array of all potential valid centers
-    let possibleCenters=[];
+    let possibleCentersV=[];
+    let possibleCentersH=[];
     for(let i=0;i<50;i++){
-        possibleCenters.push([]);
+        possibleCentersV.push([]);
+        possibleCentersH.push([]);
         for(let j=0;j<50;j++){
-            possibleCenters[i].push(i>7&&i<42&&j>8&&j<41); //Whether the initial location is valid
+            const valid=i>7&&i<42&&j>8&&j<41;
+            possibleCentersV[i].push(valid); //Whether the initial location is valid
+            possibleCentersH[i].push(valid);
         }
     }
 
@@ -237,13 +235,23 @@ Room.prototype.findCenter=function(){
                 }
 
                 if(found){
-                    //iterate through all centers that a wall conflicts with
+                    //Iterate through all centers that a wall conflicts with
                     for(let k=0;k<13;k++){
                         for(let m=0;m<15;m++){
                             const centerX=i+k-6;
                             const centerY=j+m-7;
                             if(centerX>0&&centerX<50&&centerY>0&&centerY<50) {
-                                possibleCenters[centerX][centerY] = false;
+                                possibleCentersV[centerX][centerY] = false;
+                            }
+                        }
+                    }
+                    //The same but for horizontal centers
+                    for(let k=0;k<15;k++){
+                        for(let m=0;m<13;m++){
+                            const centerX=i+k-7;
+                            const centerY=j+m-6;
+                            if(centerX>0&&centerX<50&&centerY>0&&centerY<50) {
+                                possibleCentersH[centerX][centerY] = false;
                             }
                         }
                     }
@@ -252,22 +260,40 @@ Room.prototype.findCenter=function(){
         }
     }
 
+    let centers=[];
     for(let i=0;i<50;i++){
         for(let j=0;j<50;j++){
-            if(possibleCenters[i][j]===true){
-                this.memory.centerX=i;
-                this.memory.centerY=j;
-                //TODO: push x,y coords to another array and choose the best one
-                return;
+            //push x,y coords to another array and choose the best one
+            if(possibleCentersV[i][j]===true){
+                centers.push({x:i,y:j,o:'vertical'});
+            }
+            if(possibleCentersH[i][j]===true){
+                centers.push({x:i,y:j,o:'horizontal'});
             }
         }
     }
+
+    const sources=this.getSources();
+    for(let i in centers){
+        const curr=centers[i];
+        let heur=0;
+        for(let j in sources){
+            heur+=util.distance(sources[j].pos,new RoomPosition(curr.x,curr.y,this.name));
+        }
+        heur+=util.distance(this.controller.pos,new RoomPosition(curr.x,curr.y,this.name));
+        centers[i].heur=heur;
+    }
+
+    centers.sort(function(a,b){
+        return a.heur-b.heur;
+    });
+
+    this.memory.centerX=centers[0].x;
+    this.memory.centerY=centers[0].y;
 };
 
 /**
  * Summary. Returns all sources in the room. Parses from memory or calls Room.find and sets memory
- *
- * @type {prototype}
  *
  * @returns {Source[]} All sources in the room
  */
@@ -285,8 +311,6 @@ Room.prototype.getSources=function(){
 /**
  * Summary. Returns all structures in the room. Parses from memory or calls Room.find and sets memory
  *
- * @type {prototype}
- *
  * @returns {Structure[]} All Structure objects in the room
  */
 Room.prototype.getBuildings=function(){
@@ -302,8 +326,6 @@ Room.prototype.getBuildings=function(){
 
 /**
  * Summary. Returns all friendly creeps in the room. Parses from memory or calls Room.find and sets memory
- *
- * @type {prototype}
  *
  * @returns {Creep[]} All friendly Creep objects in the room
  */
@@ -321,8 +343,6 @@ Room.prototype.getMyCreeps=function(){
 /**
  * Summary. Sets the Room.memory.myCreeps to represent the passed myCreeps
  *
- * @type {prototype}
- *
  * @param {Creep[]} myCreeps All friendly creeps in the room
  */
 Room.prototype.setMyCreeps=function(myCreeps) {
@@ -331,8 +351,6 @@ Room.prototype.setMyCreeps=function(myCreeps) {
 
 /**
  * Summary. Returns all enemy creeps in the room. Parses from memory or calls Room.find and sets memory
- *
- * @type {prototype}
  *
  * @returns {Creep[]} All enemy Creep objects in the room
  */
@@ -350,8 +368,6 @@ Room.prototype.getEnemyCreeps=function(){
 /**
  * Summary. Returns all spawns in the room. Parses from memory or calls Room.find and sets memory
  *
- * @type {prototype}
- *
  * @returns {StructureSpawn[]} All spawns in the room
  */
 Room.prototype.getSpawns=function(){
@@ -366,8 +382,6 @@ Room.prototype.getSpawns=function(){
 
 /**
  * Summary. Clears temporary memory for the room
- *
- * @type {prototype}
  */
 Room.prototype.resetTempMemory=function(){
     this.memory.buildings=undefined;
@@ -378,8 +392,6 @@ Room.prototype.resetTempMemory=function(){
 
 /**
  * Summary. Clears temporary memory for the room
- *
- * @type {prototype}
  */
 Room.prototype.resetAllMemory=function() {
     for (let i in this.memory) {

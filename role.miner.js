@@ -4,7 +4,7 @@ const Util=require('utilities');
 module.exports = {
     run: function(creep){
         const STATE_HARVESTING=0;
-        
+
         const state=creep.memory.state;
         switch(state){
             case STATE_HARVESTING:
