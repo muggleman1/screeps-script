@@ -10,9 +10,7 @@ module.exports = {
             case STATE_HARVESTING:
                 let sId=creep.getId(CREEP_ID_SOURCE);
                 if(sId===undefined) {
-                    const roomCreeps=creep.room.getMyCreeps();
-                    const sources=creep.room.getSources();
-                    creep.setSource(roomCreeps, sources);
+                    creep.setSource('miner');
                 }
                 creep.gather();
                 //TODO: add dropping into containers? or force pathing onto a container

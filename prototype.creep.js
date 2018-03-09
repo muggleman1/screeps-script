@@ -318,13 +318,13 @@ Creep.prototype.setConstructionSite=function(type){
  * Summary. Sets the sourceId of the creep to the id of a source in  sources that has the fewest Creeps
  *          in roomCreeps that has sourceId set to that source. If it is a tie, use the one with the most energy
  *
- * @param {Creep[]} roomCreeps The other Creeps to check the sourceId of
- * @param {Source[]} sources
  * @param {String} creepRole Role to filter roomCreeps by
  *
  * @returns {boolean} Whether there is one valid source in the room
  */
-Creep.prototype.setSource=function(roomCreeps,sources,creepRole=null){
+Creep.prototype.setSource=function(creepRole=null){
+    const sources=this.room.getSources();
+    const roomCreeps=this.room.getMyCreeps();
     if(sources.length){
         let place=-1;
         if(sources.length===1){

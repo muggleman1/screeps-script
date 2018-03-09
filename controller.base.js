@@ -157,6 +157,18 @@ module.exports = {
                     HarvestTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
                     rolesNeeded.harvester--;
                 }
+                else if(rolesNeeded.miner-currCreeps.miner>0){
+                    MineTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
+                    rolesNeeded.miner--;
+                }
+                else if(rolesNeeded.distributor-currCreeps.distributor>0){
+                    DistributeTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
+                    rolesNeeded.distributor--;
+                }
+                else if(rolesNeeded.deliveryBoy-currCreeps.deliveryBoy>0){
+                    DeliveryTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
+                    rolesNeeded.deliveryBoy--;
+                }
                 else if(rolesNeeded.upgrader-currCreeps.upgrader>0){
                     UpgradeTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
                     rolesNeeded.upgrader--;
@@ -164,18 +176,6 @@ module.exports = {
                 else if(rolesNeeded.builder-currCreeps.builder>0){
                     BuildTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
                     rolesNeeded.builder--;
-                }
-                else if(rolesNeeded.miner-currCreeps.miner>0){
-                    MineTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
-                    rolesNeeded.miner--;
-                }
-                else if(rolesNeeded.deliveryBoy-currCreeps.deliveryBoy>0){
-                    DeliveryTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
-                    rolesNeeded.deliveryBoy--;
-                }
-                else if(rolesNeeded.distributor-currCreeps.distributor>0){
-                    DistributeTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
-                    rolesNeeded.distributor--;
                 }
                 else if(rolesNeeded.extractor-currCreeps.extractor>0){
                     ExtractTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);

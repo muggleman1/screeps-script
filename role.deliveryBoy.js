@@ -13,7 +13,7 @@ module.exports = {
             case STATE_PICKING_UP:
                 let ret=true;
                 let id=creep.getId(CREEP_ID_PICKUP);
-                changed=false;
+                let changed=false;
                 if(id===undefined||Game.getObjectById(id)===null) {
                     changed=true;
                     ret=creep.setDropped(CREEP_ID_PICKUP,RESOURCE_ENERGY);
@@ -36,16 +36,16 @@ module.exports = {
             case STATE_EMPTYING_BINS:
                 let cRet=true;
                 let cId=creep.getId(CREEP_ID_PICKUP);
-                let changed=false;
+                let cChanged=false;
                 if(cId===undefined || Game.getObjectById(cId)===null){
-                    changed=true;
+                    cChanged=true;
                     cRet = creep.setBuilding(CREEP_ID_PICKUP,
                         (building) => building.structureType === STRUCTURE_CONTAINER
                             && building.store[RESOURCE_ENERGY] > 0,
                         function(a,b) {return b.energy - a.energy});
                 }
                 if(cRet){
-                    if(changed){
+                    if(cChanged){
                         cId=creep.getId(CREEP_ID_PICKUP);
                     }
                     creep.withdrawResource(CREEP_ID_PICKUP,RESOURCE_ENERGY);

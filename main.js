@@ -30,7 +30,7 @@ module.exports.loop = function() {
 
         //TODO: updated move function
         //Activate creep scripts as corresponding to their role
-        creep.room.clean=0;
+        creep.room.memory.clean=0;
         switch(creep.memory.role){
             case 'miner':
                 MineTime.run(creep);
@@ -62,7 +62,7 @@ module.exports.loop = function() {
                 break;
             //TODO: other creeps that attack
         }
-        creep.room.clean=1;
+        creep.room.memory.clean=1;
     }
 
     const groupedCreeps=_.groupBy(Game.creeps,(creep)=>creep.memory.home);

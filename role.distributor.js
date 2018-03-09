@@ -3,7 +3,7 @@ const BodyPartSelector=require('utilities.bodyParts');
 const Util=require('utilities');
 
 module.exports = {
-    run: function(creep){
+    run: function(creep){ //TODO: grab dropped resources?
         const STATE_PICKING_UP=0;
         const STATE_DISTRIBUTING=1;
 

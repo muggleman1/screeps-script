@@ -298,14 +298,21 @@ Room.prototype.findCenter=function(){
  * @returns {Source[]} All sources in the room
  */
 Room.prototype.getSources=function(){
-    if(this.memory.sources===undefined){
-        let sources=this.find(FIND_SOURCES);
-        this.memory.sources=JSON.stringify(util.objsToIds(sources));
-        return sources;
+    if(this.memory.sources!==undefined){
+        const objs=util.idsToObjs(JSON.parse(this.memory.sources));
+        let valid=true;
+        for(let i in objs){
+            if(objs[i]===null){
+                valid=null;
+                break;
+            }
+        }
+        if(valid)
+            return objs;
     }
-    else {
-        return util.idsToObjs(JSON.parse(this.memory.sources));
-    }
+    let sources=this.find(FIND_SOURCES);
+    this.memory.sources=JSON.stringify(util.objsToIds(sources));
+    return sources;
 };
 
 /**
@@ -314,14 +321,21 @@ Room.prototype.getSources=function(){
  * @returns {Structure[]} All Structure objects in the room
  */
 Room.prototype.getBuildings=function(){
-    if(this.memory.buildings===undefined){
-        let buildings=this.find(FIND_STRUCTURES);
-        this.memory.buildings=JSON.stringify(util.objsToIds(buildings));
-        return buildings;
+    if(this.memory.buildings!==undefined){
+        const objs=util.idsToObjs(JSON.parse(this.memory.buildings));
+        let valid=true;
+        for(let i in objs){
+            if(objs[i]===null){
+                valid=null;
+                break;
+            }
+        }
+        if(valid)
+            return objs;
     }
-    else {
-        return util.idsToObjs(JSON.parse(this.memory.buildings));
-    }
+    const buildings=this.find(FIND_STRUCTURES);
+    this.memory.buildings=JSON.stringify(util.objsToIds(buildings));
+    return buildings;
 };
 
 /**
@@ -330,14 +344,21 @@ Room.prototype.getBuildings=function(){
  * @returns {Creep[]} All friendly Creep objects in the room
  */
 Room.prototype.getMyCreeps=function(){
-    if(this.memory.myCreeps===undefined){
-        let myCreeps=this.find(FIND_MY_CREEPS);
-        this.memory.myCreeps=JSON.stringify(util.objsToIds(myCreeps));
-        return myCreeps;
+    if(this.memory.myCreeps!==undefined){
+        const objs=util.idsToObjs(JSON.parse(this.memory.myCreeps));
+        let valid=true;
+        for(let i in objs){
+            if(objs[i]===null){
+                valid=null;
+                break;
+            }
+        }
+        if(valid)
+            return objs;
     }
-    else {
-        return util.idsToObjs(JSON.parse(this.memory.myCreeps));
-    }
+    const myCreeps=this.find(FIND_MY_CREEPS);
+    this.memory.myCreeps=JSON.stringify(util.objsToIds(myCreeps));
+    return myCreeps;
 };
 
 /**
@@ -355,14 +376,21 @@ Room.prototype.setMyCreeps=function(myCreeps) {
  * @returns {Creep[]} All enemy Creep objects in the room
  */
 Room.prototype.getEnemyCreeps=function(){
-    if(this.memory.enemyCreeps===undefined){
-        let enemyCreeps=this.find(FIND_HOSTILE_CREEPS);
-        this.memory.enemyCreeps=JSON.stringify(util.objsToIds(enemyCreeps));
-        return enemyCreeps;
+    if(this.memory.enemyCreeps!==undefined){
+        const objs=util.idsToObjs(JSON.parse(this.memory.enemyCreeps));
+        let valid=true;
+        for(let i in objs){
+            if(objs[i]===null){
+                valid=null;
+                break;
+            }
+        }
+        if(valid)
+            return objs;
     }
-    else {
-        return util.idsToObjs(JSON.parse(this.memory.enemyCreeps));
-    }
+    const enemyCreeps=this.find(FIND_HOSTILE_CREEPS);
+    this.memory.enemyCreeps=JSON.stringify(util.objsToIds(enemyCreeps));
+    return enemyCreeps;
 };
 
 /**
@@ -371,13 +399,21 @@ Room.prototype.getEnemyCreeps=function(){
  * @returns {StructureSpawn[]} All spawns in the room
  */
 Room.prototype.getSpawns=function(){
-    if(this.memory.spawns===undefined){
-        let spawns=_.filter(this.getBuildings(),(building)=>building.structureType===STRUCTURE_SPAWN);
-        this.memory.spawns=JSON.stringify(util.objsToIds(spawns));
-        return spawns;
+    if(this.memory.spawns!==undefined){
+        const objs=util.idsToObjs(JSON.parse(this.memory.spawns));
+        let valid=true;
+        for(let i in objs){
+            if(objs[i]===null){
+                valid=null;
+                break;
+            }
+        }
+        if(valid)
+            return objs;
     }
-    else
-        return util.idsToObjs(JSON.parse(this.memory.spawns));
+    let spawns=_.filter(this.getBuildings(),(building)=>building.structureType===STRUCTURE_SPAWN);
+    this.memory.spawns=JSON.stringify(util.objsToIds(spawns));
+    return spawns;
 };
 
 /**
