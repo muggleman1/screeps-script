@@ -69,6 +69,8 @@ Creep.prototype.setId=function(type,value){
 };
 
 //Actions
+//TODO: update move function
+//TODO: move to home
 /**
  * Summary. Performs any action by searching for the object at the given ID
  *
@@ -394,13 +396,14 @@ Creep.prototype.setEnemy=function(enemyCreeps){
  *
  * @param {String} type One of the CREEP_ID_* constants
  * @param {String} resource One of the RESOURCE_* constants
+ * @param {int} [min] Minimum amount of resource to find, default 20
  *
  * @returns {boolean} True if successful (list length > 0)
  */
-Creep.prototype.setDropped=function(type,resource){
+Creep.prototype.setDropped=function(type,resource,min=20){
     const targets = this.room.find(FIND_DROPPED_RESOURCES);
     if (targets.length) {
-        targets.filter((value) => value.amount>20 && value.resourceType===resource);
+        targets.filter((value) => value.amount>min && value.resourceType===resource);
         targets.sort(function(a,b){
             return b.amount-a.amount;
         });

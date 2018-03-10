@@ -7,12 +7,17 @@ module.exports = {
      */
     workerParts: function(totalEnergy){
         if(totalEnergy>=800){
-            return [WORK,WORK,WORK,WORK,
-                CARRY,CARRY,CARRY,CARRY,
-                MOVE, MOVE, MOVE, MOVE];
+            let parts=[];
+            for(let i=0;i<4;i++){
+                parts.push(WORK);
+                parts.push(CARRY);
+                parts.push(MOVE);
+            }
+            return parts;
+
         }
         else if(totalEnergy>=550){
-            return [WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE];
+            return [WORK,WORK,MOVE,CARRY,WORK,MOVE,CARRY,MOVE];
         }
         else{
             return [WORK,WORK,CARRY,MOVE];
@@ -26,11 +31,11 @@ module.exports = {
      * @returns {*[]}
      */
     minerParts: function(totalEnergy){
-        if(totalEnergy>=650) {
-            return [WORK, WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE];
+        if(totalEnergy>=650) { //TODO: use carry part?
+            return [MOVE, WORK, WORK, WORK, WORK, WORK, MOVE];
         }
         else {
-            return [WORK,WORK,CARRY,MOVE]
+            return [WORK,WORK,MOVE]
         }
     },
 
@@ -41,18 +46,22 @@ module.exports = {
      * @returns {*[]}
      */
     carrierParts: function(totalEnergy){
+        let num=0;
         if(totalEnergy>=800){
-            return [CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,
-                    MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE];
+            num=8;
         }
         else if(totalEnergy>=500){
-            return [CARRY,CARRY,CARRY,CARRY,CARRY,
-                    MOVE, MOVE, MOVE, MOVE, MOVE];
+            num=5;
         }
         else {
-            return [CARRY,CARRY,CARRY,
-                    MOVE, MOVE, MOVE];
+            num=3;
         }
+        let parts=[];
+        for(let i=0;i<num;i++){
+            parts.push(CARRY);
+            parts.push(MOVE);
+        }
+        return parts;
     },
 
     /**

@@ -3,7 +3,7 @@ const BodyPartSelector=require('utilities.bodyParts');
 const Util=require('utilities');
 
 module.exports = {
-    run: function(creep){ //TODO: grab dropped resources?
+    run: function(creep){
         const STATE_PICKING_UP=0;
         const STATE_DISTRIBUTING=1;
 
@@ -19,12 +19,12 @@ module.exports = {
                     ret=creep.setBuilding(CREEP_ID_PICKUP,
                         (building) => building.structureType === STRUCTURE_STORAGE
                             && building.store[RESOURCE_ENERGY] > 0,
-                        function(a,b) {return b.energy-a.energy});
+                        (a,b)=>{return b.store[RESOURCE_ENERGY]-a.store[RESOURCE_ENERGY]});
                     if(!ret) {
                         ret = creep.setBuilding(CREEP_ID_PICKUP,
                             (building) => building.structureType === STRUCTURE_CONTAINER
                                 && building.store[RESOURCE_ENERGY] > 0,
-                            function(a,b) {return b.energy - a.energy});
+                            (a,b)=>{return b.store[RESOURCE_ENERGY]-a.store[RESOURCE_ENERGY]});
                     }
                 }
                 if(ret){

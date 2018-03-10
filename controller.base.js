@@ -26,7 +26,6 @@ module.exports = {
         room.setMyCreeps(roomCreeps);
         //Room functions that will happen consistently every tick
         const buildings=room.getBuildings();
-        //TODO: better distributor respawning (just convert deliveryBoy?)
 
         const towers=_.filter(buildings,(structure)=>(structure.structureType===STRUCTURE_TOWER));
         Tower.act(towers);
@@ -84,10 +83,10 @@ module.exports = {
                 rolesNeeded.upgrader = 2;
                 rolesNeeded.builder = 4;
             }
-            else if (roomEnergyAvailable<1800){ //RCL 4 //TODO: colony dies so fix that shit?
+            else if (roomEnergyAvailable<1800){ //RCL 4
                 const sources=room.getSources();
                 rolesNeeded.miner = sources.length;
-                rolesNeeded.deliveryBoy = sources.length*1.5;
+                rolesNeeded.deliveryBoy = sources.length*2;
                 rolesNeeded.upgrader = 1;
                 rolesNeeded.builder = 2;
                 rolesNeeded.distributor = 1;
@@ -152,22 +151,32 @@ module.exports = {
             }
 
             //Spawn based on needed creeps
-            for(let i=spawnPos;i<availableSpawns.length;i++){
+            for(let i=spawnPos;i<availableSpawns.length;i++){ //TODO: conversion to rcl4 is still shaky
                 if(rolesNeeded.harvester-currCreeps.harvester>0){
                     HarvestTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
                     rolesNeeded.harvester--;
                 }
-                else if(rolesNeeded.miner-currCreeps.miner>0){
-                    MineTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
-                    rolesNeeded.miner--;
-                }
-                else if(rolesNeeded.distributor-currCreeps.distributor>0){
-                    DistributeTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
-                    rolesNeeded.distributor--;
-                }
-                else if(rolesNeeded.deliveryBoy-currCreeps.deliveryBoy>0){
-                    DeliveryTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
-                    rolesNeeded.deliveryBoy--;
+                else if(rolesNeeded.miner-currCreeps.miner>0 ||
+                        rolesNeeded.deliveryBoy-currCreeps.deliveryBoy>0 ||
+                        rolesNeeded.distributor-currCreeps.distributor>0){
+                    const needMiners=rolesNeeded.miner-currCreeps.miner>0;
+                    const needDeliverers=rolesNeeded.deliveryBoy-currCreeps.deliveryBoy>0;
+                    const needDistributors=rolesNeeded.distributor-currCreeps.distributor>0;
+
+                    if(needMiners && (!needDeliverers || currCreeps.miner<=currCreeps.deliveryBoy) &&
+                        (!needDistributors || currCreeps.miner<=currCreeps.distributor)) {
+                        MineTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
+                        rolesNeeded.miner--;
+                    }
+                    else if(needDeliverers &&
+                        (!needDistributors || currCreeps.deliveryBoy<=currCreeps.distributor)) {
+                        DeliveryTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
+                        rolesNeeded.deliveryBoy--;
+                    }
+                    else {
+                        DistributeTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);
+                        rolesNeeded.distributor--;
+                    }
                 }
                 else if(rolesNeeded.upgrader-currCreeps.upgrader>0){
                     UpgradeTime.spawn(availableSpawns[i], room.energyCapacityAvailable, room);

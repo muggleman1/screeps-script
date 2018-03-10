@@ -20,12 +20,12 @@ module.exports = {
                     ret=creep.setBuilding(CREEP_ID_PICKUP,
                         (building) => building.structureType === STRUCTURE_STORAGE
                             && building.store[RESOURCE_ENERGY] > 0,
-                        function(a,b) {return b.energy-a.energy});
+                        (a,b)=>{return b.store[RESOURCE_ENERGY]-a.store[RESOURCE_ENERGY]});
                     if(!ret) {
                         ret = creep.setBuilding(CREEP_ID_PICKUP,
                             (building) => building.structureType === STRUCTURE_CONTAINER
                                 && building.store[RESOURCE_ENERGY] > 0,
-                            function(a,b) {return b.energy - a.energy});
+                            (a,b)=>{return b.store[RESOURCE_ENERGY]-a.store[RESOURCE_ENERGY]});
                     }
                 }
                 if(ret){
@@ -86,13 +86,13 @@ module.exports = {
                     creep.upgrade();
 
                     if (creep.carry.energy === 0) {
-                        creep.memory.state = STATE_HARVESTING;
+                        creep.memory.state = STATE_PICKING_UP;
                         creep.memory.controllerX=undefined;
                         creep.memory.controllerY=undefined;
                     }
                 }
                 else{
-                    creep.memory.state = STATE_HARVESTING;
+                    creep.memory.state = STATE_PICKING_UP;
                     creep.memory.controllerX=undefined;
                     creep.memory.controllerY=undefined;
                 }

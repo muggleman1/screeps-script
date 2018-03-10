@@ -1,5 +1,4 @@
 const BodyPartSelector=require('utilities.bodyParts');
-
 const Util=require('utilities');
 
 module.exports = {
@@ -16,7 +15,16 @@ module.exports = {
                 let changed=false;
                 if(id===undefined||Game.getObjectById(id)===null) {
                     changed=true;
-                    ret=creep.setDropped(CREEP_ID_PICKUP,RESOURCE_ENERGY);
+                    //Try to pickup from an adjacent container is possible
+                    ret=creep.setBuilding(CREEP_ID_PICKUP,
+                        (building)=>building.structureType===STRUCTURE_CONTAINER &&
+                        Util.areAdjacent(building.pos,creep.pos),
+                        (a,b)=>{return b.store[RESOURCE_ENERGY]-a.store[RESOURCE_ENERGY]});
+                    if(ret){
+                        creep.memory.state=STATE_EMPTYING_BINS;
+                        break;
+                    }
+                    ret=creep.setDropped(CREEP_ID_PICKUP,RESOURCE_ENERGY,50);
                 }
                 if(ret){
                     if(changed)
@@ -28,8 +36,8 @@ module.exports = {
                     creep.setId(CREEP_ID_PICKUP,undefined);
                 }
 
-                if(creep.carry.energy===creep.carryCapacity){
-                    creep.memory.state=STATE_DISTRIBUTING;
+                if(creep.carry.energy>creep.carryCapacity*.75){//Will not attempt to pick up again if at least 3/4 full
+                    creep.memory.state=STATE_EMPTYING_BINS;
                     creep.setId(CREEP_ID_PICKUP,undefined);
                 }
                 break;
@@ -37,12 +45,13 @@ module.exports = {
                 let cRet=true;
                 let cId=creep.getId(CREEP_ID_PICKUP);
                 let cChanged=false;
-                if(cId===undefined || Game.getObjectById(cId)===null){
+                if(cId===undefined || Game.getObjectById(cId)===null ||
+                    Game.getObjectById(cId).store[RESOURCE_ENERGY]===0){
                     cChanged=true;
                     cRet = creep.setBuilding(CREEP_ID_PICKUP,
                         (building) => building.structureType === STRUCTURE_CONTAINER
                             && building.store[RESOURCE_ENERGY] > 0,
-                        function(a,b) {return b.energy - a.energy});
+                        (a,b)=>{return b.store[RESOURCE_ENERGY]-a.store[RESOURCE_ENERGY]});
                 }
                 if(cRet){
                     if(cChanged){
