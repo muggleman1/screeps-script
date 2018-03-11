@@ -4,50 +4,54 @@ module.exports = {
     act: function(towers){
         if(towers.length) {
             const hostiles= towers[0].room.getEnemyCreeps();
-            const structures = towers[0].room.getBuildings();
 
             //Attack hostiles
             if (hostiles.length > 0) {
                 let canDamage=false;
                 for(let creep of hostiles){
-                    const body=creep.body;
-                    for(let part of body){
-                        if(part===WORK||part===ATTACK||part===RANGED_ATTACK||part===CLAIM) {
-                            canDamage = true;
-                            break;
+                    if(creep.pos.x<48 && creep.pos.x>1 && creep.pos.y<48 && creep.pos.y>1) {
+                        const body = creep.body;
+                        for (let part of body) {
+                            if (part.type === WORK || part.type === ATTACK
+                                || part.type === RANGED_ATTACK || part.type === CLAIM) {
+                                canDamage = true;
+                                break;
+                            }
                         }
+                        if (canDamage)
+                            break;
                     }
-                    if(canDamage)
-                        break;
                 }
 
-                const target=towers[0].pos.findClosestByRange(hostiles);
-                for (let tower of towers) {
-                    tower.attack(target);
+                if(canDamage) {
+                    const target = towers[0].pos.findClosestByRange(hostiles);
+                    for (let tower of towers) {
+                        tower.attack(target);
+                    }
+                    return;
                 }
             }
             //Repair Buildings
-            else {
-                let idealTowers=towers.filter(
-                    function(value){
-                        return value.energy>value.energyCapacity/2;
-                    }
-                );
+            let idealTowers=towers.filter(
+                function(value){
+                    return value.energy>value.energyCapacity/2;
+                }
+            );
 
-                if(idealTowers.length){
-                    let maximumHealth=500000; //prevents overhealing of walls TODO: change based on level
-                    let targets = _.filter(structures,
-                        (structure1) => structure1.hits <= Math.min(structure1.hitsMax,maximumHealth)-missingHealthMin);
-                    if (targets.length) {
-                        targets.sort(function(a,b){
-                            return (a.hitsMax-a.hits)/a.hitsMax<(b.hitsMax-b.hits)/b.hitsMax;
-                        }); //sort based on percent of hits missing, ascending order
+            if(idealTowers.length){
+                const structures = towers[0].room.getBuildings();
+                let maximumHealth=500000; //prevents overhealing of walls TODO: change based on level
+                let targets = _.filter(structures,
+                    (structure1) => structure1.hits <= Math.min(structure1.hitsMax,maximumHealth)-missingHealthMin);
+                if (targets.length) {
+                    targets.sort(function(a,b){
+                        return (a.hitsMax-a.hits)/a.hitsMax<(b.hitsMax-b.hits)/b.hitsMax;
+                    }); //sort based on percent of hits missing, ascending order
 
-                        let counter=0;
-                        for(let tower of idealTowers){
-                            tower.repair(targets[counter%targets.length]);
-                            counter++;
-                        }
+                    let counter=0;
+                    for(let tower of idealTowers){
+                        tower.repair(targets[counter%targets.length]);
+                        counter++;
                     }
                 }
             }

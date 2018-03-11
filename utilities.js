@@ -37,25 +37,13 @@ module.exports = {
     },
 
     /**
-     * Summary. Returns a list of available spawns from the given list
-     *
-     * @param spawns List of spawns to select from
-     * @returns {StructureSpawn[]}
-     */
-    chooseSpawns: function(spawns) {
-        return spawns.filter(function(spawn){
-            return !spawn.spawning
-        });
-    },
-
-    /**
      * Summary. Generates a new creep name by adding to prefix
      *
      * @param {String} prefix Prefix to use for name generation, generally is the creep's role
      * @returns {String} Generated Name
      */
     selectCreepName: function(prefix){
-        const letter="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const letter="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         let name;
         while(true){
             name=prefix;

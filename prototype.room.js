@@ -1,5 +1,20 @@
 const util=require('utilities');
 
+//Misc.
+/**
+ * Summary. Returns a list of available spawns from the given list
+ *
+ * @param spawns List of spawns to select from
+ * @returns {StructureSpawn[]}
+ */
+Room.prototype.chooseSpawns=function() {
+    let spawns=this.getSpawns();
+    return spawns.filter(function(spawn){
+        return spawn.isActive() && spawn.spawning===null;
+    });
+};
+
+//Building Placement
 /**
  * Summary. Places buildings based on the appropriate RCL
  */
@@ -292,6 +307,7 @@ Room.prototype.findCenter=function(){
     this.memory.centerY=centers[0].y;
 };
 
+//Memory Management
 /**
  * Summary. Returns all sources in the room. Parses from memory or calls Room.find and sets memory
  *

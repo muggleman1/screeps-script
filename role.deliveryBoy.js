@@ -36,8 +36,8 @@ module.exports = {
                     creep.setId(CREEP_ID_PICKUP,undefined);
                 }
 
-                if(creep.carry.energy>creep.carryCapacity*.75){//Will not attempt to pick up again if at least 3/4 full
-                    creep.memory.state=STATE_EMPTYING_BINS;
+                if(creep.percentFull()>.9){
+                    creep.memory.state=STATE_DISTRIBUTING;
                     creep.setId(CREEP_ID_PICKUP,undefined);
                 }
                 break;
@@ -59,7 +59,7 @@ module.exports = {
                     }
                     creep.withdrawResource(CREEP_ID_PICKUP,RESOURCE_ENERGY);
 
-                    if (creep.carry.energy === creep.carryCapacity) {
+                    if (creep.percentFull()>.9) {
                         creep.memory.state = STATE_DISTRIBUTING;
                         creep.setId(CREEP_ID_PICKUP,undefined);
                     }
@@ -82,9 +82,12 @@ module.exports = {
                     if(isChanged){
                         dId=creep.getId(CREEP_ID_DROPOFF);
                     }
-                    creep.refillBuildings(CREEP_ID_DROPOFF,RESOURCE_ENERGY);
+                    if(creep.carry.energy!==0)
+                        creep.refillBuildings(CREEP_ID_DROPOFF,RESOURCE_ENERGY);
+                    else
+                        creep.refillBuildings(CREEP_ID_DROPOFF,creep.findHolding()[0]);
 
-                    if (creep.carry.energy === 0) {
+                    if (creep.isEmpty()) {
                         creep.memory.state = STATE_PICKING_UP;
                         creep.setId(CREEP_ID_DROPOFF,undefined);
                     }

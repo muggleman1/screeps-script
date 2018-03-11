@@ -1,5 +1,4 @@
 const Tower=require('controller.towers');
-const Util=require('utilities');
 
 const HarvestTime = require('role.harvester');
 const UpgradeTime = require('role.upgrader');
@@ -12,7 +11,7 @@ const DefendTime = require('role.defender');
 
 //TODO: add containers next to sources!
 module.exports = {
-    run: function(room,roomCreeps){
+    run: function(room,roomCreeps){ //TODO: state transitions are not clean
         //Will be used for placing buildings if necessary
         if(!room.memory.centerX||!room.memory.centerY){
             room.findCenter();
@@ -20,7 +19,7 @@ module.exports = {
 
         const controllerLevel=room.controller.level;
         if(controllerLevel>room.memory.level){
-            room.controllerChange();
+            room.controllerChange(); //TODO: convert some creeps to new roles?
         }
 
         room.setMyCreeps(roomCreeps);
@@ -31,14 +30,20 @@ module.exports = {
         Tower.act(towers);
 
         let spawnPos=0;
-        let availableSpawns=Util.chooseSpawns(room.getSpawns());
+        let availableSpawns=room.chooseSpawns();
         //Respawn creeps as necessary
         if (availableSpawns.length) {
             //Periodically check if there are no creeps. If so, spawn a harvester
             if(Game.time%25===0){
                 if(!roomCreeps||roomCreeps.length===0){
-                    HarvestTime.spawn(availableSpawns[spawnPos], room.energyAvailable, room);
-                    spawnPos++;
+                    if(room.storage && room.storage.energy>5000) {
+                        DistributeTime.spawn(availableSpawns[spawnPos], room.energyAvailable, room);
+                        spawnPos++;
+                    }
+                    else{
+                        HarvestTime.spawn(availableSpawns[spawnPos], room.energyAvailable, room);
+                        spawnPos++;
+                    }
                 }
             }
             if(Game.time%10===0 && spawnPos<availableSpawns.length){
@@ -48,7 +53,8 @@ module.exports = {
                     for(let creep of enemyCreeps) {
                         const body = creep.body;
                         for(let part of body) {
-                            if (part === WORK || part === ATTACK || part === RANGED_ATTACK || part === CLAIM) {
+                            if (part.type === WORK || part.type === ATTACK
+                                || part.type === RANGED_ATTACK || part.type === CLAIM) {
                                 canDamage = true;
                                 break;
                             }
@@ -87,23 +93,35 @@ module.exports = {
                 const sources=room.getSources();
                 rolesNeeded.miner = sources.length;
                 rolesNeeded.deliveryBoy = sources.length*2;
+                const storage=room.storage;
                 rolesNeeded.upgrader = 1;
+                if(storage){
+                    rolesNeeded.upgrader=Math.max(1,Math.floor(storage.store[RESOURCE_ENERGY]/100000));
+                }
                 rolesNeeded.builder = 2;
                 rolesNeeded.distributor = 1;
             }
             else if (roomEnergyAvailable<2300){ //RCL 5
                 const sources=room.getSources();
                 rolesNeeded.miner = sources.length;
-                rolesNeeded.deliveryBoy = sources.length*1.5;
+                rolesNeeded.deliveryBoy = sources.length*2;
+                const storage=room.storage;
                 rolesNeeded.upgrader = 1;
+                if(storage){
+                    rolesNeeded.upgrader=Math.max(1,Math.floor(storage.store[RESOURCE_ENERGY]/100000));
+                }
                 rolesNeeded.builder = 2;
                 rolesNeeded.distributor = 1;
             }
             else if (roomEnergyAvailable<5600){ //RCL 6
                 const sources=room.getSources();
                 rolesNeeded.miner = sources.length;
-                rolesNeeded.deliveryBoy = sources.length*1.5;
+                rolesNeeded.deliveryBoy = sources.length*2;
+                const storage=room.storage;
                 rolesNeeded.upgrader = 1;
+                if(storage){
+                    rolesNeeded.upgrader=Math.max(1,Math.floor(storage.store[RESOURCE_ENERGY]/100000));
+                }
                 rolesNeeded.builder = 2;
                 rolesNeeded.distributor = 1;
                 rolesNeeded.extractor = 1;
@@ -111,8 +129,12 @@ module.exports = {
             else if (roomEnergyAvailable<12900){ //RCL 7
                 const sources=room.getSources();
                 rolesNeeded.miner = sources.length;
-                rolesNeeded.deliveryBoy = sources.length*1.5;
+                rolesNeeded.deliveryBoy = sources.length*2;
+                const storage=room.storage;
                 rolesNeeded.upgrader = 1;
+                if(storage){
+                    rolesNeeded.upgrader=Math.max(1,Math.floor(storage.store[RESOURCE_ENERGY]/100000));
+                }
                 rolesNeeded.builder = 2;
                 rolesNeeded.distributor = 1;
                 rolesNeeded.extractor = 1;
@@ -120,8 +142,12 @@ module.exports = {
             else { //RCL 8
                 const sources=room.getSources();
                 rolesNeeded.miner = sources.length;
-                rolesNeeded.deliveryBoy = sources.length*1.5;
+                rolesNeeded.deliveryBoy = sources.length*2;
+                const storage=room.storage;
                 rolesNeeded.upgrader = 1;
+                if(storage){
+                    rolesNeeded.upgrader=Math.max(1,Math.floor(storage.store[RESOURCE_ENERGY]/100000));
+                }
                 rolesNeeded.builder = 2;
                 rolesNeeded.distributor = 1;
                 rolesNeeded.extractor = 1;

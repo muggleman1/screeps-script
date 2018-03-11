@@ -3,20 +3,43 @@ const Util=require('utilities');
 
 module.exports = {
     run: function(creep){
-        const STATE_HARVESTING=0;
+        const STATE_PATHING=0;
+        const STATE_HARVESTING=1;
 
         const state=creep.memory.state;
         switch(state){
+            case STATE_PATHING:
+                let cId=creep.getId(CREEP_ID_TARGET);
+                if(cId===undefined || Game.getObjectById(cId)===null) {
+                    let id = creep.getId(CREEP_ID_SOURCE);
+                    if (id === undefined) {
+                        creep.setSource('miner');
+                        id = creep.getId(CREEP_ID_SOURCE);
+                    }
+                    let ret = creep.setBuilding(CREEP_ID_TARGET,
+                        (building) => building.structureType === STRUCTURE_CONTAINER &&
+                            Util.areAdjacent(Game.getObjectById(id).pos, building.pos));
+                    if(!ret){
+                        creep.memory.state=STATE_HARVESTING;
+                        break;
+                    }
+                }
+                const cont=Game.getObjectById(cId);
+                creep.moveTo(cont);
+                if(Util.distance(cont.pos,creep.pos)===0){
+                    creep.memory.state=STATE_HARVESTING;
+                }
+                break;
             case STATE_HARVESTING:
                 let sId=creep.getId(CREEP_ID_SOURCE);
                 if(sId===undefined) {
-                    creep.setSource('miner');
+                    creep.memory.state=STATE_PATHING;
+                    break;
                 }
                 creep.gather();
-                //TODO: add dropping into containers? or force pathing onto a container
                 break;
             default:
-                creep.memory.state=STATE_HARVESTING;
+                creep.memory.state=STATE_PATHING;
                 break;
         }
     },
