@@ -72,21 +72,21 @@ module.exports = {
      */
     defenderParts: function(totalEnergy){
         //TODO: more advanced?
-        if(totalEnergy>=750){
+        if(totalEnergy>=800){
             return [TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,
-                    MOVE,MOVE,MOVE,MOVE,
+                    MOVE,MOVE,MOVE,MOVE,MOVE,
                     HEAL,
                     ATTACK,ATTACK,ATTACK]
         }
-        else if(totalEnergy>=450){
-            return [TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,
-                    ATTACK,     ATTACK,     ATTACK,
+        else if(totalEnergy>=420){
+            return [TOUGH,TOUGH,TOUGH,
+                    ATTACK,ATTACK,ATTACK,
                     MOVE,MOVE,MOVE];
         }
-        else if(totalEnergy>=300){
+        else if(totalEnergy>=350){
             return [TOUGH,TOUGH,TOUGH,TOUGH,
                     ATTACK,ATTACK,
-                    MOVE,MOVE];
+                    MOVE,MOVE,MOVE];
         }
         else{
             return [ATTACK,MOVE];

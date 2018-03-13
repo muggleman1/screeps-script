@@ -8,10 +8,12 @@ module.exports = {
         const state=creep.memory.state;
         switch(state){
             case STATE_ATTACKING:
-                if(creep.memory.enemyId===undefined||Game.getObjectById(creep.memory.enemyId)===null) {
-                    creep.setEnemy();
+                if(creep.memory.enemyId===undefined || Game.getObjectById(creep.memory.enemyId)===null) {
+                    const ret=creep.setEnemy(creep.room.getEnemyCreeps());
+                    if(!ret)
+                        return;
                 }
-                creep.attackEnemy();
+                creep.attackEnemy(CREEP_ID_ENEMY);
                 break;
             default:
                 creep.memory.state=STATE_ATTACKING;

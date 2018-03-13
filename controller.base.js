@@ -11,10 +11,16 @@ const DefendTime = require('role.defender');
 
 //TODO: add containers next to sources!
 module.exports = {
-    run: function(room,roomCreeps){ //TODO: state transitions are not clean
+    run: function(room,roomCreeps){
+        //TODO: creep state transitions are not clean
+        //TODO: Add building replacement and ramparts
         //Will be used for placing buildings if necessary
         if(!room.memory.centerX||!room.memory.centerY){
             room.findCenter();
+        }
+
+        if(room.memory.maxBuildingHealth===undefined){
+            room.memory.maxBuildingHealth=250000;
         }
 
         const controllerLevel=room.controller.level;
@@ -50,17 +56,19 @@ module.exports = {
                 let enemyCreeps=room.getEnemyCreeps();
                 if(enemyCreeps.length) {
                     let canDamage = false;
-                    for(let creep of enemyCreeps) {
-                        const body = creep.body;
-                        for(let part of body) {
-                            if (part.type === WORK || part.type === ATTACK
-                                || part.type === RANGED_ATTACK || part.type === CLAIM) {
-                                canDamage = true;
-                                break;
+                    for(let creep of enemyCreeps){
+                        if(creep.pos.x<48 && creep.pos.x>1 && creep.pos.y<48 && creep.pos.y>1) {
+                            const body = creep.body;
+                            for (let part of body) {
+                                if (part.type === WORK || part.type === ATTACK ||
+                                    part.type === RANGED_ATTACK || part.type === CLAIM) {
+                                    canDamage = true;
+                                    break;
+                                }
                             }
+                            if (canDamage)
+                                break;
                         }
-                        if(canDamage)
-                            break;
                     }
                     if(canDamage) {
                         DefendTime.spawn(availableSpawns[spawnPos], room.energyCapacityAvailable, room);

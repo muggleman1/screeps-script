@@ -19,6 +19,7 @@ module.exports = {
                     let ret = creep.setBuilding(CREEP_ID_TARGET,
                         (building) => building.structureType === STRUCTURE_CONTAINER &&
                             Util.areAdjacent(Game.getObjectById(id).pos, building.pos));
+                    cId=creep.getId(CREEP_ID_TARGET);
                     if(!ret){
                         creep.memory.state=STATE_HARVESTING;
                         break;
@@ -26,8 +27,8 @@ module.exports = {
                 }
                 const cont=Game.getObjectById(cId);
                 creep.moveTo(cont);
-                if(Util.distance(cont.pos,creep.pos)===0){
-                    creep.memory.state=STATE_HARVESTING;
+                if (Util.distance(cont.pos, creep.pos) === 0) {
+                    creep.memory.state = STATE_HARVESTING;
                 }
                 break;
             case STATE_HARVESTING:

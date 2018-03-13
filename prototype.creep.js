@@ -112,13 +112,13 @@ Creep.prototype.setId=function(type,value){
 
 //Actions
 //TODO: update move function
-//TODO: move to home
+//TODO: move to home room
 /**
  * Summary. Performs any action by searching for the object at the given ID
  *
  * @param {String} type One of the CREEP_ID_* constants
- * @param {function} onFound Performs onFound given the Object found by using type, if an object is found
- * @param {function} onNotFound Executes if an object is not found by using type
+ * @param {function|null} onFound Performs onFound given the Object found by using type, if an object is found
+ * @param {function|null} onNotFound Executes if an object is not found by using type
  * @returns {number} 0 if target is found
  */
 Creep.prototype.performAction=function(type,onFound,onNotFound){
@@ -126,11 +126,13 @@ Creep.prototype.performAction=function(type,onFound,onNotFound){
     if(id !== undefined){
         const target=Game.getObjectById(id);
         if(target !== null) {
-            onFound(this,target);
+            if(onFound!==null)
+                onFound(this,target);
             return 0;
         }
         else {
-            onNotFound(this);
+            if(onNotFound!==null)
+                onNotFound(this);
             return -1;
         }
     }

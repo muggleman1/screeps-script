@@ -17,9 +17,10 @@ module.exports = {
                     changed=true;
                     //Try to pickup from an adjacent container is possible
                     ret=creep.setBuilding(CREEP_ID_PICKUP,
-                        (building)=>building.structureType===STRUCTURE_CONTAINER &&
-                        Util.areAdjacent(building.pos,creep.pos),
-                        (a,b)=>{return b.store[RESOURCE_ENERGY]-a.store[RESOURCE_ENERGY]});
+                            (building)=>building.structureType===STRUCTURE_CONTAINER &&
+                                building.store[RESOURCE_ENERGY] > 0 &&
+                                Util.areAdjacent(building.pos,creep.pos),
+                            (a,b)=>{return b.store[RESOURCE_ENERGY]-a.store[RESOURCE_ENERGY]});
                     if(ret){
                         creep.memory.state=STATE_EMPTYING_BINS;
                         break;
@@ -49,8 +50,8 @@ module.exports = {
                     Game.getObjectById(cId).store[RESOURCE_ENERGY]===0){
                     cChanged=true;
                     cRet = creep.setBuilding(CREEP_ID_PICKUP,
-                        (building) => building.structureType === STRUCTURE_CONTAINER
-                            && building.store[RESOURCE_ENERGY] > 0,
+                        (building) => building.structureType === STRUCTURE_CONTAINER &&
+                            building.store[RESOURCE_ENERGY] > 0,
                         (a,b)=>{return b.store[RESOURCE_ENERGY]-a.store[RESOURCE_ENERGY]});
                 }
                 if(cRet){
