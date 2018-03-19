@@ -413,7 +413,7 @@ Creep.prototype.setSource=function(creepRole=null){
  * @returns {boolean} Whether there is a valid mine or not
  */
 Creep.prototype.setMine=function(type){
-    const minerals=this.room.find(FIND_MINERALS)[0];
+    const minerals=this.room.find(FIND_MINERALS);
     if(minerals.length){
         this.setId(type,minerals[0].id);
         return true;

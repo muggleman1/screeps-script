@@ -42,7 +42,7 @@ module.exports = {
             //Periodically check if there are no creeps. If so, spawn a harvester
             if(Game.time%25===0){
                 if(!roomCreeps||roomCreeps.length===0){
-                    if(room.storage && room.storage.energy>5000) {
+                    if(room.storage && room.storage.store[RESOURCE_ENERGY]>5000) {
                         DistributeTime.spawn(availableSpawns[spawnPos], room.energyAvailable, room);
                         spawnPos++;
                     }

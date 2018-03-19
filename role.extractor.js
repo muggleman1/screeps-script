@@ -10,9 +10,11 @@ module.exports = {
         switch(state){
             case STATE_HARVESTING:
                 let sId=creep.getId(CREEP_ID_SOURCE);
+                let ret=true;
                 if(sId===undefined) {
-                    creep.setMine(CREEP_ID_SOURCE);
-                    creep.memory.mineralType=Game.getObjectById(creep.getId(CREEP_ID_SOURCE)).mineralType;
+                    ret=creep.setMine(CREEP_ID_SOURCE);
+                    if(ret)
+                        creep.memory.mineralType=Game.getObjectById(creep.getId(CREEP_ID_SOURCE)).mineralType;
                 }
                 creep.gather();
 
