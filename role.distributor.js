@@ -50,6 +50,12 @@ module.exports = {
                     hasTarget=creep.setEnergyBuilding(CREEP_ID_DROPOFF);
                     if(hasTarget)
                         id=creep.getId(CREEP_ID_DROPOFF);
+                    else{
+                        hasTarget=creep.setBuilding(CREEP_ID_DROPOFF,
+                            (building)=>building.structureType===STRUCTURE_TERMINAL);
+                        if(hasTarget)
+                            id=creep.getId(CREEP_ID_DROPOFF);
+                    }
                 }
 
                 if(hasTarget)

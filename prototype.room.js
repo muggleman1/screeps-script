@@ -51,13 +51,13 @@ Room.prototype.controllerChange=function(){
                 }
                 this.place(STRUCTURE_EXTENSION,10);
                 this.place(STRUCTURE_LAB,3);
+                this.place(STRUCTURE_TERMINAL);
                 //TODO: add 1 link
                 break;
             case 6:
                 this.place(STRUCTURE_SPAWN);
                 this.place(STRUCTURE_EXTENSION,10);
                 this.place(STRUCTURE_TOWER);
-                this.place(STRUCTURE_TERMINAL);
                 this.place(STRUCTURE_LAB,3);
                 //TODO: add 1 link
                 break;

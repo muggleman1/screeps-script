@@ -18,7 +18,7 @@ module.exports = {
                 }
                 creep.gather();
 
-                if(creep.carry.energy===creep.carryCapacity){
+                if(creep.isFull()){
                     creep.memory.state=STATE_DEPOSITING;
                     //This does not reset sourceId, the mine will not change ever
                 }
@@ -40,7 +40,7 @@ module.exports = {
                     creep.memory.state=STATE_HARVESTING;
                     creep.setId(CREEP_ID_DROPOFF,undefined);
                 }
-                if(creep.carry.energy===0){
+                if(creep.isEmpty()){
                     creep.memory.state=STATE_HARVESTING;
                     creep.setId(CREEP_ID_DROPOFF,undefined);
                 }
