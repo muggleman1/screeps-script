@@ -6,8 +6,8 @@ module.exports = {
     run: function(creep){
         const STATE_PICKING_UP=0;
         const STATE_DISTRIBUTING=1;
-
         const state=creep.memory.state;
+
         switch(state){
             case STATE_PICKING_UP:
                 let ret=true;
@@ -33,7 +33,7 @@ module.exports = {
                     }
                     creep.withdrawResource(CREEP_ID_PICKUP,RESOURCE_ENERGY);
 
-                    if (creep.carry.energy === creep.carryCapacity) {
+                    if (creep.isFull()) {
                         creep.memory.state = STATE_DISTRIBUTING;
                         creep.setId(CREEP_ID_PICKUP,undefined);
                     }
@@ -50,7 +50,7 @@ module.exports = {
                     hasTarget=creep.setEnergyBuilding(CREEP_ID_DROPOFF);
                     if(hasTarget)
                         id=creep.getId(CREEP_ID_DROPOFF);
-                    else{
+                    else if(Game.rooms[creep.memory.home].storage.store[RESOURCE_ENERGY]>2e5){
                         hasTarget=creep.setBuilding(CREEP_ID_DROPOFF,
                             (building)=>building.structureType===STRUCTURE_TERMINAL);
                         if(hasTarget)

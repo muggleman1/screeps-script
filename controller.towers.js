@@ -1,5 +1,5 @@
 const missingHealthMin=800; //Towers will not heal a structure if it has < this amount of health
-const wallMax=5000000
+const wallMax=5e5;
 
 module.exports = {
     act: function(towers){
@@ -52,7 +52,9 @@ module.exports = {
                 const structures = room.getBuildings();
                 const maximumHealth = room.memory.maxBuildingHealth; //prevents overhealing of walls
                 let targets = _.filter(structures,
-                    (structure1) => structure1.hits <= Math.min(structure1.hitsMax,maximumHealth)-missingHealthMin);
+                    (structure1) => structure1.hits <= Math.min(structure1.hitsMax,maximumHealth)-missingHealthMin &&
+                        structure1.structureType !== STRUCTURE_WALL &&
+                        structure1.structureType !== STRUCTURE_RAMPART);
                 if (targets.length>0) {
                     targets.sort(function(a,b){
                         return a.hits-b.hits;

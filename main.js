@@ -15,9 +15,11 @@ const DeliveryTime = require('role.deliveryBoy');
 const DistributeTime = require('role.distributor');
 const ExtractTime = require('role.extractor');
 const DefendTime = require('role.defender');
+const TerminalTime = require('role.terminalWorker');
 
 console.log('Script Reloaded');
 
+//TODO: REPLACE SORT WITH FINDMIN/FINDMAX
 module.exports.loop = function() {
     //run all creep AI
     for(let name in Memory.creeps){
@@ -55,6 +57,9 @@ module.exports.loop = function() {
                 break;
             case 'defender':
                 DefendTime.run(creep);
+                break;
+            case 'terminalWorker':
+                TerminalTime.run(creep);
                 break;
             default: //Reset Creeps role to be the beginning of their name
                 let name=creep.name;

@@ -10,3 +10,21 @@ Structure.prototype.storeSum=function(){
     else
         return -1;
 };
+/**
+ * Summary. Gets an array of all minerals stored in the Structure
+ *
+ * @returns {number[]} All minerals that the Structure contains
+ */
+Structure.prototype.getContainedMinerals=function(){
+    if(this.store){
+        let allMin = [];
+        for(let mineral of allResources){
+            if(this.store[mineral]>0){
+                allMin.push(mineral);
+            }
+        }
+        return allMin;
+    }
+    else
+        return [];
+};

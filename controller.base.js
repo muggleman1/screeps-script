@@ -14,9 +14,53 @@ module.exports = {
     run: function(room,roomCreeps){
         //TODO: creep state transitions are not clean
         //TODO: Add building replacement and ramparts
+
+        //TODO: spawn terminal workers as necessary
+
+        //Terminal Functionality
+        if(room.terminal && room.terminal.cooldown === 0){
+            //Auto-sell when full on resources
+            let term = room.terminal;
+            let orders = null;
+            if(term.store[RESOURCE_ENERGY]>25e4 && room.storage && room.storage.store[RESOURCE_ENERGY]>3e5){
+                orders = Game.market.getAllOrders(order => order.resourceType === RESOURCE_ENERGY &&
+                                                            order.type === ORDER_BUY);
+            }
+            else if(term.storeSum()===term.storeCapacity){
+                let mins = term.getContainedMinerals();
+                if(mins && mins.length) {
+                    if(mins[0] === RESOURCE_ENERGY && mins.length>1){
+                        orders = Game.market.getAllOrders(order => order.resourceType === mins[1] &&
+                            order.type === ORDER_BUY);
+                            console.log(mins[1]);
+                    }
+                    else{
+                        orders = Game.market.getAllOrders(order => order.resourceType === mins[0] &&
+                            order.type === ORDER_BUY);
+                    }
+                }
+            }
+            //TODO: better logic may be employed here
+            if(orders) {
+                orders = orders.sort((a, b) => b.price - a.price);
+                let bestId = orders[0].id;
+
+                let amount = Math.min(orders[0].amount,term.store[orders[0].resourceType]);
+
+                if(Game.market.deal(bestId, amount, room.name) === 0) {
+                    console.log("Sold " + amount + " units of " + orders[0].resourceType + " for " + orders[0].price);
+                }
+            }
+        }
+
         //Will be used for placing buildings if necessary
         if(!room.memory.centerX||!room.memory.centerY){
             room.findCenter();
+        }
+
+        if(!room.memory.mineralId){
+            console.log('finding minerals');
+            room.findMinerals();
         }
 
         if(room.memory.maxBuildingHealth===undefined){
@@ -132,7 +176,10 @@ module.exports = {
                 }
                 rolesNeeded.builder = 2;
                 rolesNeeded.distributor = 1;
-                rolesNeeded.extractor = 1;
+                const minerals = Game.getObjectById(room.memory.mineralId);
+                if(minerals.mineralAmount > 0) {
+                    rolesNeeded.extractor = 1;
+                }
             }
             else if (roomEnergyAvailable<12900){ //RCL 7
                 const sources=room.getSources();
@@ -145,7 +192,10 @@ module.exports = {
                 }
                 rolesNeeded.builder = 2;
                 rolesNeeded.distributor = 1;
-                rolesNeeded.extractor = 1;
+                const minerals = Game.getObjectById(room.memory.mineralId);
+                if(minerals.mineralAmount > 0) {
+                    rolesNeeded.extractor = 1;
+                }
             }
             else { //RCL 8
                 const sources=room.getSources();
@@ -158,7 +208,10 @@ module.exports = {
                 }
                 rolesNeeded.builder = 2;
                 rolesNeeded.distributor = 1;
-                rolesNeeded.extractor = 1;
+                const minerals = Game.getObjectById(room.memory.mineralId);
+                if(minerals.mineralAmount > 0) {
+                    rolesNeeded.extractor = 1;
+                }
             }
 
             //Set rolesNeeded

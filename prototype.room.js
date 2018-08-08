@@ -307,6 +307,12 @@ Room.prototype.findCenter=function(){
     this.memory.centerY=centers[0].y;
 };
 
+
+Room.prototype.findMinerals=function(){
+    let minerals = this.find(FIND_MINERALS)[0];
+    this.memory.mineralId = minerals.id;
+};
+
 //Memory Management
 /**
  * Summary. Returns all sources in the room. Parses from memory or calls Room.find and sets memory
