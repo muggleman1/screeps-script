@@ -27,8 +27,8 @@ module.exports = {
                 if(creep.memory.controllerX === undefined || creep.memory.controllerY === undefined){
                     creep.setControllerMem();
                 }
-                if(creep.fatigue !== 0 && creep.x !== creep.memory.controllerX && creep.y !== creep.memory.controllerY){
-                    creep.moveTo(creep.memory.controllerX, creep.memory.controllerY);
+                if(creep.x !== creep.memory.controllerX && creep.y !== creep.memory.controllerY){
+                    creep.travelTo(creep.memory.controllerX, creep.memory.controllerY);
                 }
                 //TODO add returning to attacking state
                 break;

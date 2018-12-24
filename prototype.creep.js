@@ -2,6 +2,30 @@ const Util=require('utilities');
 
 //Miscellaneous
 /**
+ * Summary. Calls the travelTo function by converting x and y to a roomPosition object
+ *
+ * @param {int} x X value of destination
+ * @param {int} y Y value of destination
+ * @param {Object} opts Any opts taken by the Creep.moveTo function
+ */
+Creep.prototype.travelTo = function(x, y, opts) {
+    this.travelTo(new RoomPosition(x, y, this.room.name), opts);
+};
+
+// TODO: make this more sophisticated (moveByPath??)
+/**
+ * Summary. Calls the Creep.moveTo function by adding
+ *
+ * @param {RoomPosition|Object} target RoomPosition object or any object containing RoomPosition
+ * @param {Object} opts Any opts taken by the Creep.moveTo function
+ */
+Creep.prototype.travelTo = function(target, opts) {
+    if(this.fatigue===0) {
+        this.moveTo(target, opts);
+    }
+};
+
+/**
  * Summary. Return true if the creep is full
  *
  * @returns {boolean}
@@ -35,7 +59,7 @@ Creep.prototype.percentFull=function(){
  */
 Creep.prototype.findHolding=function(){
     let held=[];
-    for(let i of allResources){
+    for(let i of RESOURCES_ALL){
         if(this.carry[i] && this.carry[i]!==0)
             held.push(i);
     }
@@ -47,7 +71,7 @@ Creep.prototype.findHolding=function(){
  * Summary. Returns the value stored in the creep's memory designated by type
  *
  * @param {String} type One of the CREEP_ID_* constants
- * 
+ *
  * @returns {undefined|*} Value in memory
  */
 Creep.prototype.getId=function(type){
@@ -111,8 +135,6 @@ Creep.prototype.setId=function(type,value){
 };
 
 //Actions
-//TODO: update move function
-//TODO: move to home room
 /**
  * Summary. Performs any action by searching for the object at the given ID
  *
@@ -155,9 +177,7 @@ Creep.prototype.construct=function(type) {
             creep.build(target);
         }
         if (!Util.areAdjacent(creep.pos, target.pos)) {
-            if (creep.fatigue === 0) {
-                creep.moveTo(target);
-            }
+            creep.travelTo(target);
         }
     };
     const notFound=function(creep) {
@@ -179,9 +199,7 @@ Creep.prototype.gather=function() {
             creep.harvest(source);
         }
         else{
-            if(creep.fatigue===0) {
-                creep.moveTo(source);
-            }
+            creep.travelTo(source);
         }
     };
     return this.performAction(CREEP_ID_SOURCE,found,null)===0;
@@ -201,12 +219,10 @@ Creep.prototype.upgrade=function(){
         valid=true;
     }
     if(Util.distance(this.pos,this.room.controller.pos)>2){
-        if(this.fatigue===0) {
-            if(this.moveTo(this.memory.controllerX,this.memory.controllerY) === ERR_NO_PATH){
-                this.memory.controllerX=undefined;
-                this.memory.controllerY=undefined;
-                return false;
-            }
+        if(this.travelTo(this.memory.controllerX,this.memory.controllerY) === ERR_NO_PATH){
+            this.memory.controllerX=undefined;
+            this.memory.controllerY=undefined;
+            return false;
         }
         return true;
     }
@@ -225,7 +241,7 @@ Creep.prototype.upgrade=function(){
 Creep.prototype.attackEnemy=function(type){
     const found=function(creep,enemy){
         if(creep.attack(enemy)===ERR_NOT_IN_RANGE)
-            creep.moveTo(enemy);
+            creep.travelTo(enemy);
         creep.rangedHeal(creep); //TODO: check if the creep has heal parts
     };
     return this.performAction(type,found,null)===0;
@@ -248,9 +264,7 @@ Creep.prototype.refillBuildings=function(type,resource){
             creep.setId(type,undefined);
         }
         else{
-            if(creep.fatigue===0) {
-                creep.moveTo(target);
-            }
+            creep.travelTo(target);
         }
     };
     return this.performAction(type,found,null)===0;
@@ -272,9 +286,7 @@ Creep.prototype.withdrawResource=function(type,resource){
             creep.withdraw(target,resource);
         }
         else{
-            if(creep.fatigue===0) {
-                creep.moveTo(target);
-            }
+            creep.travelTo(target);
         }
     };
     return this.performAction(type,found,null)===0;
@@ -293,9 +305,7 @@ Creep.prototype.pickupResource=function(type){
             creep.pickup(target);
         }
         else{
-            if(creep.fatigue===0) {
-                creep.moveTo(target);
-            }
+            creep.travelTo(target);
         }
     };
     return this.performAction(type,found,null)===0;
@@ -333,9 +343,14 @@ Creep.prototype.setBuilding=function(type,filter,sort=null){
  */
 Creep.prototype.setEnergyBuilding=function(type){
     let ret=this.setBuilding(type,
-        (structure) => (structure.structureType===STRUCTURE_EXTENSION||structure.structureType === STRUCTURE_SPAWN)
+        (structure) => structure.structureType===STRUCTURE_EXTENSION
         && structure.energy < structure.energyCapacity,
         function(a,b){return a.energy-b.energy;});
+    if(!ret){
+        ret=this.setBuilding(type,(structure) => structure.structureType===STRUCTURE_SPAWN
+            && structure.energy < structure.energyCapacity * .9,
+            function(a,b){return a.energy-b.energy;});
+    }
     if(!ret){
         ret=this.setBuilding(type,(structure) => structure.structureType===STRUCTURE_TOWER
             && structure.energy < structure.energyCapacity * .9,
@@ -486,7 +501,7 @@ Creep.prototype.setControllerMem=function(){
             const newX=controller.pos.x+xOptions[i];
             const newY=controller.pos.y+yOptions[j];
             if(Game.map.getTerrainAt(newX,newY,this.room.name)!=="wall"){
-                if(this.moveTo(newX,newY)!==ERR_NO_PATH){
+                if(this.travelTo(newX,newY)!==ERR_NO_PATH){
                     this.memory.controllerX=newX;
                     this.memory.controllerY=newY;
                     return true;

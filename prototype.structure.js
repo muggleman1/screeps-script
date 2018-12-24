@@ -18,7 +18,7 @@ Structure.prototype.storeSum=function(){
 Structure.prototype.getContainedMinerals=function(){
     if(this.store){
         let allMin = [];
-        for(let mineral of allResources){
+        for(let mineral of RESOURCES_ALL){
             if(this.store[mineral]>0){
                 allMin.push(mineral);
             }

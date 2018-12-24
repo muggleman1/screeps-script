@@ -30,7 +30,6 @@ module.exports.loop = function() {
             continue;
         }
 
-        //TODO: updated move function
         //Activate creep scripts as corresponding to their role
         creep.room.memory.clean=0;
         switch(creep.memory.role){

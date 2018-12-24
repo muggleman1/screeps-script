@@ -24,19 +24,21 @@ module.exports = {
             let orders = null;
             if(term.store[RESOURCE_ENERGY]>25e4 && room.storage && room.storage.store[RESOURCE_ENERGY]>3e5){
                 orders = Game.market.getAllOrders(order => order.resourceType === RESOURCE_ENERGY &&
-                                                            order.type === ORDER_BUY);
+                                                            order.type === ORDER_BUY &&
+                                                            order.amount > 0);
             }
             else if(term.storeSum()===term.storeCapacity){
                 let mins = term.getContainedMinerals();
                 if(mins && mins.length) {
                     if(mins[0] === RESOURCE_ENERGY && mins.length>1){
                         orders = Game.market.getAllOrders(order => order.resourceType === mins[1] &&
-                            order.type === ORDER_BUY);
-                            console.log(mins[1]);
+                            order.type === ORDER_BUY &&
+                            order.amount > 0);
                     }
                     else{
                         orders = Game.market.getAllOrders(order => order.resourceType === mins[0] &&
-                            order.type === ORDER_BUY);
+                            order.type === ORDER_BUY &&
+                            order.amount > 0);
                     }
                 }
             }
@@ -46,7 +48,6 @@ module.exports = {
                 let bestId = orders[0].id;
 
                 let amount = Math.min(orders[0].amount,term.store[orders[0].resourceType]);
-
                 if(Game.market.deal(bestId, amount, room.name) === 0) {
                     console.log("Sold " + amount + " units of " + orders[0].resourceType + " for " + orders[0].price);
                 }

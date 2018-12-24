@@ -26,7 +26,7 @@ module.exports = {
                     }
                 }
                 const cont=Game.getObjectById(cId);
-                creep.moveTo(cont);
+                creep.travelTo(cont);
                 if (Util.distance(cont.pos, creep.pos) === 0) {
                     creep.memory.state = STATE_HARVESTING;
                 }
